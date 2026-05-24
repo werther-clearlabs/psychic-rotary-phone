@@ -1,7 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import type { Case, CaseSample, Report } from '../../server/genomics/types'
+import { useGenomicsStore } from '../../stores/genomics-store'
+import { GenerateReportModal } from './components/generate-report-modal'
+import { ReportCanvas } from './components/report-canvas'
+import { ReportChatPanel } from './components/report-chat-panel'
 
 async function fetchCase(
   id: string,
@@ -103,9 +107,7 @@ export function CaseDetailScreen() {
           <OverviewTab c={c} samples={samples} report={report} />
         )}
         {activeTab === 'Report & Review' && (
-          <div style={{ color: 'var(--gray-500)' }}>
-            Report & Review — see Phase 3 plan
-          </div>
+          <ReportAndReviewTab c={c} caseId={caseId} report={report ?? null} />
         )}
         {activeTab === 'Files' && <FilesTab samples={samples} />}
         {activeTab === 'Runs' && <RunsTab caseId={caseId} />}
@@ -445,6 +447,83 @@ function HistoryTab({ report }: { report: Report | null }) {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; report: Report | null }) {
+  const { generateModalOpen, openGenerateModal, closeGenerateModal } = useGenomicsStore()
+  const qc = useQueryClient()
+
+  if (!report) {
+    return (
+      <div style={{ padding: 40, textAlign: 'center', color: 'var(--gray-600)' }}>
+        <div style={{ fontSize: 48, marginBottom: 16, color: 'var(--gray-300)' }}>⬡</div>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 8 }}>
+          No report generated yet
+        </h3>
+        <p style={{ fontSize: 13, color: 'var(--gray-600)', marginBottom: 24, maxWidth: 380, margin: '0 auto 24px' }}>
+          Select a Protocol to dispatch the AI agent. The report will appear here once the agent finishes.
+        </p>
+        <button
+          onClick={() => openGenerateModal()}
+          style={{ padding: '8px 24px', borderRadius: 3, fontSize: 13, fontWeight: 700, background: 'var(--brand-500)', color: '#fff', border: 'none', cursor: 'pointer' }}
+        >
+          Generate Report
+        </button>
+        {generateModalOpen && (
+          <GenerateReportModal
+            caseId={caseId}
+            assayType={c.assay_type ?? null}
+            onClose={closeGenerateModal}
+            onDispatched={() => {
+              closeGenerateModal()
+              // Poll for report availability after dispatch
+              setTimeout(() => {
+                void qc.invalidateQueries({ queryKey: ['genomics', 'case', caseId, 'report'] })
+              }, 3000)
+            }}
+          />
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', height: 'calc(100vh - 200px)', overflow: 'hidden' }}>
+      {/* Left: report canvas */}
+      <div style={{ overflowY: 'auto', borderRight: '1px solid var(--gray-200)' }}>
+        <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--gray-200)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa' }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gray-900)' }}>
+            Molecular Pathology & Precision Oncology Report
+          </span>
+          {report.status === 'draft' && (
+            <button
+              onClick={() => openGenerateModal()}
+              style={{ padding: '4px 12px', borderRadius: 3, fontSize: 11, border: '1px solid var(--gray-300)', color: 'var(--gray-700)', background: 'none', cursor: 'pointer' }}
+            >
+              Regenerate
+            </button>
+          )}
+        </div>
+        <ReportCanvas report={report} caseId={caseId} />
+      </div>
+
+      {/* Right: AI chat panel */}
+      <ReportChatPanel caseId={caseId} caseData={c} report={report} />
+
+      {/* Generate modal (for regenerate) */}
+      {generateModalOpen && (
+        <GenerateReportModal
+          caseId={caseId}
+          assayType={c.assay_type ?? null}
+          onClose={closeGenerateModal}
+          onDispatched={() => {
+            closeGenerateModal()
+            void qc.invalidateQueries({ queryKey: ['genomics', 'case', caseId, 'report'] })
+          }}
+        />
+      )}
     </div>
   )
 }
