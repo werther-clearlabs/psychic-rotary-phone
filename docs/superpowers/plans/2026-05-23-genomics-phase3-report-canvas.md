@@ -83,7 +83,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { requireLocalOrAuth } from '../../../server/auth-middleware'
 import { getCase } from '../../../server/genomics/cases-store'
 import { getProtocol, resolveVariables, renderTemplate } from '../../../server/genomics/protocols-store'
-import { gateway } from '../../../server/gateway'
 // Ensure the file watcher is running before the first report is generated.
 import '../../../server/genomics/watcher-init'
 
@@ -103,16 +102,35 @@ export const Route = createFileRoute('/api/genomics/cases/$caseId/report/generat
         const vars = resolveVariables(protocol, caseRecord as unknown as Record<string, unknown>, body.overrides ?? {})
         const prompt = renderTemplate(protocol.prompt_template, vars)
 
-        await gateway.request('sessions.send_message', {
-          message: prompt,
-          context: {
-            case_id: params.caseId,
-            protocol_id: protocol.id,
-            protocol_version: protocol.version,
+        // Dispatch via the workspace chat pipeline (/api/send-stream).
+        // Fire-and-forget — runs can take several minutes; report-watcher
+        // upserts the resulting markdown when it lands on disk.
+        const sessionKey = `genomics-case-${params.caseId}`
+        const sendStreamUrl = new URL('/api/send-stream', request.url)
+        const cookie = request.headers.get('cookie') ?? ''
+        const authHeader = request.headers.get('authorization') ?? ''
+
+        void fetch(sendStreamUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(cookie ? { cookie } : {}),
+            ...(authHeader ? { authorization: authHeader } : {}),
           },
+          body: JSON.stringify({
+            message: prompt,
+            sessionKey,
+            friendlyId: sessionKey,
+          }),
+        }).catch((err) => {
+          console.error('[genomics generate] dispatch failed:', err)
         })
 
-        return Response.json({ ok: true, prompt_length: prompt.length })
+        return Response.json({
+          ok: true,
+          prompt_length: prompt.length,
+          session_key: sessionKey,
+        })
       },
     },
   },
@@ -875,9 +893,15 @@ git commit -m "feat: NAS figure serve route for report canvas"
 **Files:**
 - Create: `src/screens/genomics/components/report-chat-panel.tsx`
 
-A self-contained chat interface scoped to a genomics session. Uses a dedicated session key (`genomics-case-${caseId}`) so conversations are isolated from the main workspace chat. On mount, if the session is fresh, it sends an automatic context primer with the Case's patient info and key variants.
+A self-contained chat interface scoped to a genomics session. Uses a dedicated session key (`genomics-case-${caseId}`) so conversations are isolated from the main workspace chat — and **shared with the Generate Report dispatch**, so the agent's report-writing run shows up in the same conversation. On mount, if the session is fresh, it sends an automatic context primer with the Case's patient info and key variants.
 
-The implementation POSTs to `/api/send-stream` (the same endpoint the main chat uses) and reads the streaming response body directly. Response chunks are SSE-formatted; we extract `delta` text events.
+The implementation POSTs to `/api/send-stream` (the same endpoint the main chat uses) and reads the streaming response body directly. The route emits **named SSE events** (not bare `data:` lines): `event: <name>\ndata: <json>\n\n`. Key events:
+
+- `chunk` — `data: { text: <full accumulated text>, fullReplace: true, sessionKey, runId }` — `text` is the **full content so far**, not a delta. The parser must **replace** the assistant message text on each chunk, not append.
+- `tool` — tool-call events (ignored by this minimal panel).
+- `thinking` — thinking deltas (ignored).
+- `started` / `done` / `error` — run lifecycle.
+- `hb_signal` / `heartbeat` — keep-alive (ignored).
 
 - [ ] **Step 1: Write `report-chat-panel.tsx`**
 
@@ -928,6 +952,16 @@ export function ReportChatPanel({ caseId, caseData, report }: Props) {
     })
   }, [])
 
+  const setMessageText = useCallback((id: string, role: 'user' | 'assistant', text: string) => {
+    setMessages((prev) => {
+      const existing = prev.find((m) => m.id === id)
+      if (existing) {
+        return prev.map((m) => m.id === id ? { ...m, text } : m)
+      }
+      return [...prev, { id, role, text }]
+    })
+  }, [])
+
   // Send context primer on first mount
   useEffect(() => {
     if (contextSent) return
@@ -947,23 +981,29 @@ export function ReportChatPanel({ caseId, caseData, report }: Props) {
     }
 
     const assistantId = `${msgId}-reply`
-    appendMessage({ id: assistantId, role: 'assistant', text: '' })
+    setMessageText(assistantId, 'assistant', '')
 
     try {
       const res = await fetch('/api/send-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, sessionKey, friendlyId: sessionKey }),
+        credentials: 'same-origin',
       })
       if (!res.ok || !res.body) {
-        appendMessage({ id: assistantId, role: 'assistant', text: 'Error: could not reach Hermes.' })
+        setMessageText(assistantId, 'assistant', 'Error: could not reach Hermes.')
         return
       }
 
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
+      let currentEvent = ''
+      let accumulated = ''
 
+      // SSE frames: `event: <name>\ndata: <json>\n\n`. The named-event line
+      // and data line arrive on consecutive lines; track currentEvent until a
+      // data line is consumed (or the frame ends with a blank line).
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -971,27 +1011,48 @@ export function ReportChatPanel({ caseId, caseData, report }: Props) {
         const lines = buffer.split('\n')
         buffer = lines.pop() ?? ''
 
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const raw = line.slice(6).trim()
-          if (!raw || raw === '[DONE]') continue
-          try {
-            const evt = JSON.parse(raw) as Record<string, unknown>
-            // Extract text delta from common event shapes
-            const delta =
-              (evt.delta as string | undefined) ??
-              ((evt.payload as Record<string, unknown>)?.delta as string | undefined) ??
-              null
-            if (typeof delta === 'string' && delta) {
-              appendMessage({ id: assistantId, role: 'assistant', text: delta })
-            }
-          } catch {
-            // non-JSON SSE line (e.g. heartbeat) — ignore
+        for (const rawLine of lines) {
+          const line = rawLine.trimEnd()
+          if (!line) {
+            // blank line = end of frame
+            currentEvent = ''
+            continue
           }
+          if (line.startsWith('event: ')) {
+            currentEvent = line.slice(7).trim()
+            continue
+          }
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6)
+          if (!raw || raw === '[DONE]') continue
+          let evt: Record<string, unknown>
+          try {
+            evt = JSON.parse(raw) as Record<string, unknown>
+          } catch {
+            continue // heartbeats / malformed lines
+          }
+
+          if (currentEvent === 'chunk' && typeof evt.text === 'string') {
+            // `text` is the FULL accumulated text so far — replace, do not append.
+            accumulated = evt.text
+            setMessageText(assistantId, 'assistant', accumulated)
+          } else if (currentEvent === 'error') {
+            const message = typeof evt.message === 'string'
+              ? evt.message
+              : typeof evt.error === 'string'
+                ? evt.error
+                : 'Unknown error'
+            setMessageText(assistantId, 'assistant', `Error: ${message}`)
+          }
+          // started / done / tool / thinking / hb_signal / heartbeat — ignored
         }
       }
     } catch (err) {
-      appendMessage({ id: assistantId, role: 'assistant', text: `Error: ${err instanceof Error ? err.message : String(err)}` })
+      setMessageText(
+        assistantId,
+        'assistant',
+        `Error: ${err instanceof Error ? err.message : String(err)}`,
+      )
     }
   }
 
@@ -1210,54 +1271,11 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
 }
 ```
 
-- [ ] **Step 4: Add `assay_type` field to Case type and schema**
+- [ ] **Step 4: Confirm `assay_type` column exists**
 
-The `GenerateReportModal` uses `c.assay_type` to pre-filter protocols. This field is not in the Phase 1 schema. Add it now:
+The `GenerateReportModal` uses `c.assay_type` to pre-filter protocols. This column is part of Phase 1's `cases` schema and `Case` type (added in Phase 1 Task 2/Task 3 — verify it's there). No additional migration is needed here.
 
-In `src/server/genomics/types.ts`, add `assay_type?: string | null` to the `Case` interface:
-
-```typescript
-export interface Case {
-  id: string
-  patient_id?: string | null
-  patient_name?: string | null
-  dob?: string | null
-  diagnosis?: string | null
-  stage?: string | null
-  assay_type?: string | null      // e.g. 'WGS' | 'targeted-panel' | 'RNA-seq'
-  status: 'active' | 'closed' | 'pending'
-  ehr_summary?: string | null
-  created_at: number
-  updated_at: number
-}
-```
-
-In `src/server/genomics/schema.ts`, add `assay_type TEXT` to the `cases` table. Find this line in `runMigrations`:
-
-```sql
-  patient_id TEXT,
-  patient_name TEXT,
-```
-
-And replace the cases table definition with:
-
-```sql
-CREATE TABLE IF NOT EXISTS cases (
-  id TEXT PRIMARY KEY,
-  patient_id TEXT,
-  patient_name TEXT,
-  dob TEXT,
-  diagnosis TEXT,
-  stage TEXT,
-  assay_type TEXT,
-  status TEXT NOT NULL DEFAULT 'active',
-  ehr_summary TEXT,
-  created_at INTEGER NOT NULL,
-  updated_at INTEGER NOT NULL
-)
-```
-
-Note: if the DB already exists from testing, drop and recreate or run: `ALTER TABLE cases ADD COLUMN assay_type TEXT`.
+If you find an existing DB from earlier testing that pre-dates the column, drop `~/.hermes/genomics.db` (PoC, no data to preserve) or run: `ALTER TABLE cases ADD COLUMN assay_type TEXT`.
 
 - [ ] **Step 5: Verify in browser**
 
@@ -1278,7 +1296,7 @@ curl -X POST http://localhost:3000/api/genomics/cases \
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/screens/genomics/case-detail-screen.tsx src/server/genomics/types.ts src/server/genomics/schema.ts
+git add src/screens/genomics/case-detail-screen.tsx
 git commit -m "feat: Report & Review tab — generate modal, canvas, chat panel wired in case detail"
 ```
 

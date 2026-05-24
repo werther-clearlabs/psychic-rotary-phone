@@ -1,0 +1,120 @@
+<h2>Run Detail Screen</h2>
+<p class="subtitle">How should Parabricks pipeline progress and results be displayed?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;flex-direction:column;height:240px;font-size:10px;border:1px solid #333;border-radius:4px;overflow:hidden;">
+        <div style="background:#111;padding:5px 10px;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
+          <span style="color:#4ade80;font-weight:600;">RUN-2024-087</span>
+          <span style="color:#888;">WGS · HG38 · BRCA panel</span>
+          <span style="background:#1a3a5c;color:#60a5fa;padding:1px 6px;border-radius:3px;font-size:8px;margin-left:auto;">● Running</span>
+        </div>
+        <div style="flex:1;background:#0a0a0a;padding:8px;display:flex;gap:8px;">
+          <!-- Pipeline stages left -->
+          <div style="width:140px;display:flex;flex-direction:column;gap:3px;">
+            <div style="color:#555;font-size:8px;text-transform:uppercase;margin-bottom:2px;">Pipeline Stages</div>
+            <div style="display:flex;align-items:center;gap:5px;padding:3px 5px;background:#1e3a2f;border-radius:3px;">
+              <span style="color:#4ade80;font-size:9px;">✓</span><span style="color:#4ade80;font-size:8px;">FASTQ QC</span><span style="color:#555;font-size:7px;margin-left:auto;">2m</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;padding:3px 5px;background:#1e3a2f;border-radius:3px;">
+              <span style="color:#4ade80;font-size:9px;">✓</span><span style="color:#4ade80;font-size:8px;">BWA-MEM Align</span><span style="color:#555;font-size:7px;margin-left:auto;">18m</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;padding:3px 5px;background:#1a2a3a;border-radius:3px;border:1px solid #1e3a5c;">
+              <span style="color:#60a5fa;font-size:9px;">⟳</span><span style="color:#60a5fa;font-size:8px;">HaplotypeCaller</span><span style="color:#555;font-size:7px;margin-left:auto;">8m…</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;padding:3px 5px;background:#111;border-radius:3px;">
+              <span style="color:#333;font-size:9px;">○</span><span style="color:#555;font-size:8px;">VCF Annotation</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;padding:3px 5px;background:#111;border-radius:3px;">
+              <span style="color:#333;font-size:9px;">○</span><span style="color:#555;font-size:8px;">QC Report</span>
+            </div>
+          </div>
+          <!-- Right: log / metrics -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+            <div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:3px;flex:1;padding:5px;font-family:monospace;font-size:7px;color:#4ade80;overflow:hidden;">
+              <div style="color:#555;">[10:42:01] pbrun haplotypecaller --ref hg38.fa</div>
+              <div>[10:42:03] GPU detected: A100 × 4</div>
+              <div>[10:42:05] Processing chr1... 12%</div>
+              <div style="color:#60a5fa;">[10:50:11] Processing chr2... 34% ▌</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;">
+              <div style="background:#111;border-radius:3px;padding:4px;"><div style="color:#555;font-size:7px;">Coverage</div><div style="color:#ccc;font-size:9px;">34×</div></div>
+              <div style="background:#111;border-radius:3px;padding:4px;"><div style="color:#555;font-size:7px;">GPU Util</div><div style="color:#4ade80;font-size:9px;">94%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Pipeline stages + live log</h3>
+      <p>Left column: stage-by-stage status (done / running / pending). Right: live pbrun log stream + QC metrics. Familiar CI/CD pipeline feel.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;flex-direction:column;height:240px;font-size:10px;border:1px solid #333;border-radius:4px;overflow:hidden;">
+        <div style="background:#111;padding:5px 10px;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
+          <span style="color:#4ade80;font-weight:600;">RUN-2024-087</span>
+          <span style="color:#888;">WGS · HG38</span>
+          <div style="margin-left:auto;display:flex;gap:4px;">
+            <span style="color:#555;font-size:8px;background:#1a1a1a;padding:1px 5px;border-radius:3px;">Overview</span>
+            <span style="color:#4ade80;font-size:8px;background:#1e3a2f;padding:1px 5px;border-radius:3px;">Pipeline</span>
+            <span style="color:#555;font-size:8px;background:#1a1a1a;padding:1px 5px;border-radius:3px;">QC</span>
+            <span style="color:#555;font-size:8px;background:#1a1a1a;padding:1px 5px;border-radius:3px;">Outputs</span>
+            <span style="color:#555;font-size:8px;background:#1a1a1a;padding:1px 5px;border-radius:3px;">Logs</span>
+          </div>
+        </div>
+        <!-- Horizontal timeline -->
+        <div style="background:#0d0d0d;padding:8px;border-bottom:1px solid #1a1a1a;">
+          <div style="display:flex;align-items:center;gap:0;position:relative;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+              <div style="width:18px;height:18px;border-radius:50%;background:#4ade80;display:flex;align-items:center;justify-content:center;color:#000;font-size:8px;font-weight:bold;">✓</div>
+              <div style="color:#4ade80;font-size:7px;text-align:center;">FASTQ<br/>QC</div>
+            </div>
+            <div style="flex:1;height:2px;background:#4ade80;margin-bottom:12px;"></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+              <div style="width:18px;height:18px;border-radius:50%;background:#4ade80;display:flex;align-items:center;justify-content:center;color:#000;font-size:8px;font-weight:bold;">✓</div>
+              <div style="color:#4ade80;font-size:7px;text-align:center;">Align</div>
+            </div>
+            <div style="flex:1;height:2px;background:linear-gradient(to right,#4ade80,#1e3a5c);margin-bottom:12px;"></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+              <div style="width:18px;height:18px;border-radius:50%;background:#1e3a5c;border:2px solid #60a5fa;display:flex;align-items:center;justify-content:center;color:#60a5fa;font-size:8px;">⟳</div>
+              <div style="color:#60a5fa;font-size:7px;text-align:center;">Variant<br/>Call</div>
+            </div>
+            <div style="flex:1;height:2px;background:#222;margin-bottom:12px;"></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+              <div style="width:18px;height:18px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;color:#555;font-size:8px;">○</div>
+              <div style="color:#555;font-size:7px;text-align:center;">Annotate</div>
+            </div>
+            <div style="flex:1;height:2px;background:#222;margin-bottom:12px;"></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+              <div style="width:18px;height:18px;border-radius:50%;background:#222;display:flex;align-items:center;justify-content:center;color:#555;font-size:8px;">○</div>
+              <div style="color:#555;font-size:7px;text-align:center;">QC<br/>Report</div>
+            </div>
+          </div>
+        </div>
+        <!-- Detail below timeline -->
+        <div style="flex:1;background:#0a0a0a;padding:8px;display:flex;gap:6px;">
+          <div style="flex:1;background:#0d0d0d;border:1px solid #1a1a1a;border-radius:3px;padding:5px;font-family:monospace;font-size:7px;color:#60a5fa;">
+            <div style="color:#555;">[10:50:11] HaplotypeCaller running</div>
+            <div>Processing chr2... 34% ▌</div>
+          </div>
+          <div style="width:80px;display:flex;flex-direction:column;gap:3px;">
+            <div style="background:#111;border-radius:3px;padding:4px;"><div style="color:#555;font-size:7px;">Elapsed</div><div style="color:#ccc;font-size:9px;">26m</div></div>
+            <div style="background:#111;border-radius:3px;padding:4px;"><div style="color:#555;font-size:7px;">GPU</div><div style="color:#4ade80;font-size:9px;">94%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Horizontal timeline + tabbed detail</h3>
+      <p>Top: horizontal stage timeline (like a progress track). Below: tabs for Pipeline / QC / Outputs / Logs. Cleaner at a glance, more room for QC metrics and output files.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click to select, then let me know in the terminal.</p>

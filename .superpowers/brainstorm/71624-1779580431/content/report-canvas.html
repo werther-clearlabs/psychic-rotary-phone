@@ -1,0 +1,143 @@
+<h2>Report &amp; Review Tab — Canvas + Chat</h2>
+<p class="subtitle">AI drafts from the agent-generated markdown. Clinician edits inline or asks AI to revise. Based on your COLO829 report structure.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Case PT-2024-0042 → Report &amp; Review tab</div>
+  <div class="mockup-body" style="padding:0;">
+    <div style="display:flex;height:420px;font-size:10px;">
+
+      <!-- LEFT: Report Canvas -->
+      <div style="flex:1;border-right:1px solid #222;display:flex;flex-direction:column;overflow:hidden;">
+        <!-- Canvas toolbar -->
+        <div style="background:#111;padding:4px 8px;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:6px;">
+          <span style="color:#888;font-size:8px;text-transform:uppercase;letter-spacing:1px;">Report Canvas</span>
+          <span style="color:#555;font-size:8px;">· draft</span>
+          <div style="margin-left:auto;display:flex;gap:4px;">
+            <span style="background:#1a1a1a;color:#888;padding:2px 6px;border-radius:3px;font-size:8px;">Export PDF</span>
+            <span style="background:#1e3a2f;color:#4ade80;padding:2px 6px;border-radius:3px;font-size:8px;">Sign &amp; Finalize</span>
+          </div>
+        </div>
+
+        <!-- Section nav pills -->
+        <div style="background:#0d0d0d;padding:4px 8px;border-bottom:1px solid #1a1a1a;display:flex;gap:4px;flex-wrap:wrap;">
+          <span style="background:#1e3a2f;color:#4ade80;padding:1px 5px;border-radius:3px;font-size:7px;">§1 Header</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§2 Methods</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§3 Summary</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§4 Tier I</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§5 Tier II</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§6 Biomarkers</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§7 VUS</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§8 Therapy</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§9 Trials</span>
+          <span style="background:#1a1a1a;color:#666;padding:1px 5px;border-radius:3px;font-size:7px;">§10–12</span>
+        </div>
+
+        <!-- Report content (scrollable) -->
+        <div style="flex:1;overflow-y:auto;padding:10px;background:#0a0a0a;display:flex;flex-direction:column;gap:8px;">
+
+          <!-- Section 1 -->
+          <div style="border:1px solid #1e3a2f;border-radius:4px;overflow:hidden;">
+            <div style="background:#111;padding:4px 8px;display:flex;align-items:center;gap:6px;">
+              <span style="color:#4ade80;font-size:8px;font-weight:600;">1. Header / Specimen Information</span>
+              <span style="margin-left:auto;color:#555;font-size:7px;cursor:pointer;">✎ edit</span>
+            </div>
+            <div style="padding:6px 8px;display:grid;grid-template-columns:100px 1fr;gap:2px 6px;font-size:8px;">
+              <span style="color:#555;">Sample ID</span><span style="color:#ccc;">COLO829 / COLO829BL</span>
+              <span style="color:#555;">Assay</span><span style="color:#ccc;">WGS · GRCh38 · Parabricks v4.7</span>
+              <span style="color:#555;">Report Date</span><span style="color:#ccc;">May 19, 2026</span>
+            </div>
+          </div>
+
+          <!-- Section 3 -->
+          <div style="border:1px solid #222;border-radius:4px;overflow:hidden;">
+            <div style="background:#111;padding:4px 8px;display:flex;align-items:center;gap:6px;">
+              <span style="color:#ccc;font-size:8px;font-weight:600;">3. Results Summary</span>
+              <span style="margin-left:auto;color:#555;font-size:7px;cursor:pointer;">✎ edit</span>
+            </div>
+            <div style="padding:6px 8px;font-size:8px;color:#888;">
+              COLO829 demonstrates a hypermutated profile (TMB-High) consistent with UV-driven melanoma.
+              <div style="margin-top:4px;display:flex;flex-direction:column;gap:2px;">
+                <span style="color:#4ade80;">● BRAF V600E (Tier I / Level 1)</span>
+                <span style="color:#4ade80;">● TMB-High 63.6 mut/Mb (Tier I / Level 1)</span>
+                <span style="color:#f59e0b;">● TERT Promoter C228T (Tier II / Level 3A)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 8 - being edited -->
+          <div style="border:1px solid #3b5998;border-radius:4px;overflow:hidden;box-shadow:0 0 0 1px #1e3a5c;">
+            <div style="background:#1a2a3a;padding:4px 8px;display:flex;align-items:center;gap:6px;">
+              <span style="color:#60a5fa;font-size:8px;font-weight:600;">8. Therapy Recommendations</span>
+              <span style="color:#60a5fa;font-size:7px;">· editing</span>
+              <span style="margin-left:auto;color:#60a5fa;font-size:7px;">✓ save</span>
+            </div>
+            <div style="padding:6px 8px;font-size:8px;background:#0d1520;">
+              <table style="width:100%;border-collapse:collapse;">
+                <tr style="border-bottom:1px solid #1a2a3a;">
+                  <td style="color:#555;padding:3px 6px;width:90px;">First-line SOC</td>
+                  <td style="color:#ccc;padding:3px 6px;">BRAF/MEK Inhibitor combo (Dabrafenib+Trametinib) OR anti-PD-1 (Pembrolizumab)<span style="color:#60a5fa;">|</span></td>
+                </tr>
+                <tr>
+                  <td style="color:#555;padding:3px 6px;">Post-progression</td>
+                  <td style="color:#ccc;padding:3px 6px;">Checkmate-067 (Nivo+Ipi) or ERK inhibitors</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Figure embed -->
+          <div style="border:1px solid #222;border-radius:4px;padding:6px 8px;background:#0d0d0d;">
+            <div style="color:#555;font-size:7px;text-transform:uppercase;margin-bottom:4px;">Figure 1 · Mutational Signature Decomposition</div>
+            <div style="background:#111;height:50px;border-radius:3px;display:flex;align-items:center;justify-content:center;">
+              <div style="display:flex;align-items:flex-end;gap:2px;height:36px;">
+                <div style="width:24px;background:linear-gradient(to top,#f59e0b,#ef4444,#3b82f6);height:100%;border-radius:2px 2px 0 0;opacity:0.8;"></div>
+              </div>
+              <span style="color:#555;font-size:7px;margin-left:8px;">SBS7a/b/c/d · SBS1/5 (embedded PNG from agent)</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: Chat panel -->
+      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+        <!-- Chat header -->
+        <div style="background:#111;padding:4px 8px;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:6px;">
+          <span style="color:#888;font-size:8px;text-transform:uppercase;letter-spacing:1px;">AI Assistant</span>
+          <span style="background:#1e3a2f;color:#4ade80;padding:1px 5px;border-radius:3px;font-size:7px;">Case context loaded</span>
+        </div>
+
+        <!-- Chat history -->
+        <div style="flex:1;overflow-y:auto;padding:8px;background:#0a0a0a;display:flex;flex-direction:column;gap:6px;justify-content:flex-end;">
+
+          <div style="align-self:flex-end;background:#1a2a3a;border-radius:6px 6px 0 6px;padding:5px 8px;max-width:85%;font-size:8px;color:#ccc;">
+            Expand section 8 to include the ERK inhibitor clinical rationale and add a note on resistance monitoring for NRAS.
+          </div>
+
+          <div style="align-self:flex-start;background:#111;border-radius:6px 6px 6px 0;padding:5px 8px;max-width:90%;font-size:8px;color:#888;border:1px solid #1a1a1a;">
+            <span style="color:#4ade80;font-size:7px;">● updated §8</span><br/>
+            Added ERK inhibitor rationale (Ulixertinib) under post-progression and resistance monitoring note: <em>monitor for NRAS Q61, MEK1/2 mutations and BRAF splice variants post-BRAFi.</em> Section updated in canvas — review and save.
+          </div>
+
+          <div style="align-self:flex-end;background:#1a2a3a;border-radius:6px 6px 0 6px;padding:5px 8px;max-width:85%;font-size:8px;color:#ccc;">
+            Are there any new trials for BRAF V600E in melanoma added since May 2026?
+          </div>
+
+          <div style="align-self:flex-start;background:#111;border-radius:6px 6px 6px 0;padding:5px 8px;max-width:90%;font-size:8px;color:#888;border:1px solid #1a1a1a;">
+            Checking ClinicalTrials.gov via agent skill… <span style="color:#60a5fa;">⟳</span>
+          </div>
+        </div>
+
+        <!-- Input -->
+        <div style="padding:6px 8px;background:#0d0d0d;border-top:1px solid #1a1a1a;">
+          <div style="background:#111;border:1px solid #222;border-radius:4px;padding:5px 8px;color:#444;font-size:8px;">
+            Ask about this case or edit the report…
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:12px;">Does this capture the report canvas + chat workflow you have in mind? Let me know in the terminal.</p>

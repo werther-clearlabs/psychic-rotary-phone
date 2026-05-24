@@ -1,0 +1,105 @@
+<h2>Generate Report — Protocol Selector</h2>
+<p class="subtitle">Modal that opens when clicking "Generate Report" from the Case Report &amp; Review tab. Three steps.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Case PT-2024-0042 → Report &amp; Review → Generate Report</div>
+  <div class="mockup-body" style="padding:0;background:#f5f5f7;">
+
+    <!-- Dimmed case behind modal -->
+    <div style="position:relative;padding:20px;filter:blur(1px);opacity:0.3;height:80px;background:#f5f5f7;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;color:#333;">Overview</span>
+      <span style="font-size:11px;color:#2d6fa3;border-bottom:2px solid #2d6fa3;padding-bottom:2px;">Report &amp; Review</span>
+      <span style="font-size:11px;color:#999;">Files</span>
+      <span style="font-size:11px;color:#999;">Runs</span>
+    </div>
+
+    <!-- Modal -->
+    <div style="position:relative;margin:-60px 20px 20px;background:#fff;border-radius:5px;box-shadow:0px 6px 16px 0px rgba(0,0,0,0.1);overflow:hidden;font-size:11px;">
+
+      <!-- Modal header -->
+      <div style="padding:14px 20px;border-bottom:1px solid #e8e8ec;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:14px;font-weight:700;color:#2c2c35;font-family:Helvetica,sans-serif;">Generate Report</span>
+        <span style="color:#999;cursor:pointer;">✕</span>
+      </div>
+
+      <!-- Step indicators -->
+      <div style="padding:10px 20px;border-bottom:1px solid #e8e8ec;display:flex;align-items:center;gap:0;background:#fafafa;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:20px;height:20px;border-radius:50%;background:#2d6fa3;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Helvetica,sans-serif;">1</div>
+          <span style="font-size:10px;font-weight:700;color:#2d6fa3;font-family:Helvetica,sans-serif;">SELECT PROTOCOL</span>
+        </div>
+        <div style="flex:1;height:1px;background:#d0d0d8;margin:0 10px;max-width:40px;"></div>
+        <div style="display:flex;align-items:center;gap:6px;opacity:0.4;">
+          <div style="width:20px;height:20px;border-radius:50%;background:#d0d0d8;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</div>
+          <span style="font-size:10px;font-weight:700;color:#888;">REVIEW VARIABLES</span>
+        </div>
+        <div style="flex:1;height:1px;background:#d0d0d8;margin:0 10px;max-width:40px;"></div>
+        <div style="display:flex;align-items:center;gap:6px;opacity:0.4;">
+          <div style="width:20px;height:20px;border-radius:50%;background:#d0d0d8;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;">3</div>
+          <span style="font-size:10px;font-weight:700;color:#888;">CONFIRM</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Protocol selector -->
+      <div style="padding:16px 20px;">
+        <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.44px;margin-bottom:10px;font-family:Helvetica,sans-serif;">Available Protocols · Filtered for WGS</div>
+
+        <!-- Protocol options -->
+        <div style="display:flex;flex-direction:column;gap:6px;">
+
+          <!-- Selected protocol -->
+          <div style="border:2px solid #2d6fa3;border-radius:5px;padding:10px 14px;background:#f0f6fb;cursor:pointer;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+              <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  <span style="font-size:12px;font-weight:700;color:#2c2c35;font-family:Helvetica,sans-serif;">WGS Oncology Report</span>
+                  <span style="background:#e8f0f8;color:#2d6fa3;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:Helvetica,sans-serif;">v2.1</span>
+                  <span style="background:#e8f5ee;color:#2a7a48;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:Helvetica,sans-serif;">ACTIVE</span>
+                </div>
+                <div style="font-size:10px;color:#666;margin-bottom:6px;font-family:Helvetica,sans-serif;">Full somatic variant interpretation + clinical trial matching. 12-section report.</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                  <span style="background:#f0f0f4;color:#555;font-size:9px;padding:1px 6px;border-radius:3px;font-family:'Helvetica Condensed',Helvetica,sans-serif;">vcf-interpretation</span>
+                  <span style="background:#f0f0f4;color:#555;font-size:9px;padding:1px 6px;border-radius:3px;font-family:'Helvetica Condensed',Helvetica,sans-serif;">oncokb-lookup</span>
+                  <span style="background:#f0f0f4;color:#555;font-size:9px;padding:1px 6px;border-radius:3px;font-family:'Helvetica Condensed',Helvetica,sans-serif;">civic-lookup</span>
+                  <span style="background:#f0f0f4;color:#555;font-size:9px;padding:1px 6px;border-radius:3px;font-family:'Helvetica Condensed',Helvetica,sans-serif;">trial-matcher</span>
+                  <span style="background:#f0f0f4;color:#555;font-size:9px;padding:1px 6px;border-radius:3px;font-family:'Helvetica Condensed',Helvetica,sans-serif;">report-writer-12section</span>
+                </div>
+              </div>
+              <div style="width:16px;height:16px;border-radius:50%;border:2px solid #2d6fa3;background:#2d6fa3;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:#fff;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Unselected protocol -->
+          <div style="border:1px solid #e0e0e8;border-radius:5px;padding:10px 14px;background:#fff;cursor:pointer;opacity:0.7;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+              <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                  <span style="font-size:12px;font-weight:700;color:#2c2c35;font-family:Helvetica,sans-serif;">WGS Germline Report</span>
+                  <span style="background:#f0f0f4;color:#666;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:Helvetica,sans-serif;">v1.0</span>
+                  <span style="background:#e8f5ee;color:#2a7a48;font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:Helvetica,sans-serif;">ACTIVE</span>
+                </div>
+                <div style="font-size:10px;color:#888;font-family:Helvetica,sans-serif;">Germline variant classification · ACMG criteria · hereditary cancer panel.</div>
+              </div>
+              <div style="width:16px;height:16px;border-radius:50%;border:2px solid #c0c0cc;flex-shrink:0;margin-top:2px;"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Hint -->
+        <div style="margin-top:10px;font-size:9px;color:#aaa;font-family:Helvetica,sans-serif;">Showing 2 of 2 protocols compatible with WGS assay type. <span style="color:#2d6fa3;">Manage Protocols →</span></div>
+      </div>
+
+      <!-- Modal footer -->
+      <div style="padding:10px 20px;border-top:1px solid #e8e8ec;display:flex;justify-content:flex-end;gap:8px;background:#fafafa;">
+        <div style="padding:6px 16px;border-radius:3px;font-size:11px;font-weight:700;color:#2c2c35;cursor:pointer;font-family:Helvetica,sans-serif;">Cancel</div>
+        <div style="padding:6px 16px;border-radius:3px;font-size:11px;font-weight:700;background:#2d6fa3;color:#fff;cursor:pointer;font-family:Helvetica,sans-serif;">Next: Review Variables →</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:12px;">Does this Protocol selector feel right? Let me know in terminal.</p>

@@ -148,6 +148,9 @@ import { Route as ApiKnowledgeGraphRouteImport } from './routes/api/knowledge/gr
 import { Route as ApiKnowledgeConfigRouteImport } from './routes/api/knowledge/config'
 import { Route as ApiHermesworldReservationsRouteImport } from './routes/api/hermesworld/reservations'
 import { Route as ApiHermesTasksTaskIdRouteImport } from './routes/api/hermes-tasks.$taskId'
+import { Route as ApiGenomicsRunsRouteImport } from './routes/api/genomics/runs'
+import { Route as ApiGenomicsProtocolsRouteImport } from './routes/api/genomics/protocols'
+import { Route as ApiGenomicsCasesRouteImport } from './routes/api/genomics/cases'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
 import { Route as ApiClaudeTasksTaskIdRouteImport } from './routes/api/claude-tasks.$taskId'
 import { Route as ApiClaudeProxySplatRouteImport } from './routes/api/claude-proxy/$'
@@ -158,6 +161,15 @@ import { Route as ApiSessionsSessionKeyActiveRunRouteImport } from './routes/api
 import { Route as ApiMcpHubSourcesIdRouteImport } from './routes/api/mcp/hub-sources.$id'
 import { Route as ApiMcpNameLogsRouteImport } from './routes/api/mcp/$name.logs'
 import { Route as ApiHermesworldReservationsConfirmRouteImport } from './routes/api/hermesworld/reservations/confirm'
+import { Route as ApiGenomicsRunsRunIdRouteImport } from './routes/api/genomics/runs.$runId'
+import { Route as ApiGenomicsProtocolsProtocolIdRouteImport } from './routes/api/genomics/protocols.$protocolId'
+import { Route as ApiGenomicsCasesCaseIdRouteImport } from './routes/api/genomics/cases.$caseId'
+import { Route as ApiGenomicsRunsRunIdLogRouteImport } from './routes/api/genomics/runs.$runId.log'
+import { Route as ApiGenomicsProtocolsProtocolIdPreviewRouteImport } from './routes/api/genomics/protocols.$protocolId.preview'
+import { Route as ApiGenomicsCasesCaseIdReportRouteImport } from './routes/api/genomics/cases.$caseId.report'
+import { Route as ApiGenomicsRunsRunIdLinkCaseIdRouteImport } from './routes/api/genomics/runs.$runId.link.$caseId'
+import { Route as ApiGenomicsCasesCaseIdReportGenerateRouteImport } from './routes/api/genomics/cases.$caseId.report.generate'
+import { Route as ApiGenomicsCasesCaseIdReportExportPdfRouteImport } from './routes/api/genomics/cases.$caseId.report.export-pdf'
 
 const WorldRoute = WorldRouteImport.update({
   id: '/world',
@@ -856,6 +868,21 @@ const ApiHermesTasksTaskIdRoute = ApiHermesTasksTaskIdRouteImport.update({
   path: '/$taskId',
   getParentRoute: () => ApiHermesTasksRoute,
 } as any)
+const ApiGenomicsRunsRoute = ApiGenomicsRunsRouteImport.update({
+  id: '/api/genomics/runs',
+  path: '/api/genomics/runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenomicsProtocolsRoute = ApiGenomicsProtocolsRouteImport.update({
+  id: '/api/genomics/protocols',
+  path: '/api/genomics/protocols',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenomicsCasesRoute = ApiGenomicsCasesRouteImport.update({
+  id: '/api/genomics/cases',
+  path: '/api/genomics/cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDashboardOverviewRoute = ApiDashboardOverviewRouteImport.update({
   id: '/api/dashboard/overview',
   path: '/api/dashboard/overview',
@@ -908,6 +935,57 @@ const ApiHermesworldReservationsConfirmRoute =
     id: '/confirm',
     path: '/confirm',
     getParentRoute: () => ApiHermesworldReservationsRoute,
+  } as any)
+const ApiGenomicsRunsRunIdRoute = ApiGenomicsRunsRunIdRouteImport.update({
+  id: '/$runId',
+  path: '/$runId',
+  getParentRoute: () => ApiGenomicsRunsRoute,
+} as any)
+const ApiGenomicsProtocolsProtocolIdRoute =
+  ApiGenomicsProtocolsProtocolIdRouteImport.update({
+    id: '/$protocolId',
+    path: '/$protocolId',
+    getParentRoute: () => ApiGenomicsProtocolsRoute,
+  } as any)
+const ApiGenomicsCasesCaseIdRoute = ApiGenomicsCasesCaseIdRouteImport.update({
+  id: '/$caseId',
+  path: '/$caseId',
+  getParentRoute: () => ApiGenomicsCasesRoute,
+} as any)
+const ApiGenomicsRunsRunIdLogRoute = ApiGenomicsRunsRunIdLogRouteImport.update({
+  id: '/log',
+  path: '/log',
+  getParentRoute: () => ApiGenomicsRunsRunIdRoute,
+} as any)
+const ApiGenomicsProtocolsProtocolIdPreviewRoute =
+  ApiGenomicsProtocolsProtocolIdPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => ApiGenomicsProtocolsProtocolIdRoute,
+  } as any)
+const ApiGenomicsCasesCaseIdReportRoute =
+  ApiGenomicsCasesCaseIdReportRouteImport.update({
+    id: '/report',
+    path: '/report',
+    getParentRoute: () => ApiGenomicsCasesCaseIdRoute,
+  } as any)
+const ApiGenomicsRunsRunIdLinkCaseIdRoute =
+  ApiGenomicsRunsRunIdLinkCaseIdRouteImport.update({
+    id: '/link/$caseId',
+    path: '/link/$caseId',
+    getParentRoute: () => ApiGenomicsRunsRunIdRoute,
+  } as any)
+const ApiGenomicsCasesCaseIdReportGenerateRoute =
+  ApiGenomicsCasesCaseIdReportGenerateRouteImport.update({
+    id: '/generate',
+    path: '/generate',
+    getParentRoute: () => ApiGenomicsCasesCaseIdReportRoute,
+  } as any)
+const ApiGenomicsCasesCaseIdReportExportPdfRoute =
+  ApiGenomicsCasesCaseIdReportExportPdfRouteImport.update({
+    id: '/export-pdf',
+    path: '/export-pdf',
+    getParentRoute: () => ApiGenomicsCasesCaseIdReportRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -1016,6 +1094,9 @@ export interface FileRoutesByFullPath {
   '/api/claude-proxy/$': typeof ApiClaudeProxySplatRoute
   '/api/claude-tasks/$taskId': typeof ApiClaudeTasksTaskIdRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/genomics/cases': typeof ApiGenomicsCasesRouteWithChildren
+  '/api/genomics/protocols': typeof ApiGenomicsProtocolsRouteWithChildren
+  '/api/genomics/runs': typeof ApiGenomicsRunsRouteWithChildren
   '/api/hermes-tasks/$taskId': typeof ApiHermesTasksTaskIdRoute
   '/api/hermesworld/reservations': typeof ApiHermesworldReservationsRouteWithChildren
   '/api/knowledge/config': typeof ApiKnowledgeConfigRoute
@@ -1055,11 +1136,20 @@ export interface FileRoutesByFullPath {
   '/api/update/agent': typeof ApiUpdateAgentRoute
   '/api/update/status': typeof ApiUpdateStatusRoute
   '/api/update/workspace': typeof ApiUpdateWorkspaceRoute
+  '/api/genomics/cases/$caseId': typeof ApiGenomicsCasesCaseIdRouteWithChildren
+  '/api/genomics/protocols/$protocolId': typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
+  '/api/genomics/runs/$runId': typeof ApiGenomicsRunsRunIdRouteWithChildren
   '/api/hermesworld/reservations/confirm': typeof ApiHermesworldReservationsConfirmRoute
   '/api/mcp/$name/logs': typeof ApiMcpNameLogsRoute
   '/api/mcp/hub-sources/$id': typeof ApiMcpHubSourcesIdRoute
   '/api/sessions/$sessionKey/active-run': typeof ApiSessionsSessionKeyActiveRunRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
+  '/api/genomics/cases/$caseId/report': typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+  '/api/genomics/protocols/$protocolId/preview': typeof ApiGenomicsProtocolsProtocolIdPreviewRoute
+  '/api/genomics/runs/$runId/log': typeof ApiGenomicsRunsRunIdLogRoute
+  '/api/genomics/cases/$caseId/report/export-pdf': typeof ApiGenomicsCasesCaseIdReportExportPdfRoute
+  '/api/genomics/cases/$caseId/report/generate': typeof ApiGenomicsCasesCaseIdReportGenerateRoute
+  '/api/genomics/runs/$runId/link/$caseId': typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1166,6 +1256,9 @@ export interface FileRoutesByTo {
   '/api/claude-proxy/$': typeof ApiClaudeProxySplatRoute
   '/api/claude-tasks/$taskId': typeof ApiClaudeTasksTaskIdRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/genomics/cases': typeof ApiGenomicsCasesRouteWithChildren
+  '/api/genomics/protocols': typeof ApiGenomicsProtocolsRouteWithChildren
+  '/api/genomics/runs': typeof ApiGenomicsRunsRouteWithChildren
   '/api/hermes-tasks/$taskId': typeof ApiHermesTasksTaskIdRoute
   '/api/hermesworld/reservations': typeof ApiHermesworldReservationsRouteWithChildren
   '/api/knowledge/config': typeof ApiKnowledgeConfigRoute
@@ -1205,11 +1298,20 @@ export interface FileRoutesByTo {
   '/api/update/agent': typeof ApiUpdateAgentRoute
   '/api/update/status': typeof ApiUpdateStatusRoute
   '/api/update/workspace': typeof ApiUpdateWorkspaceRoute
+  '/api/genomics/cases/$caseId': typeof ApiGenomicsCasesCaseIdRouteWithChildren
+  '/api/genomics/protocols/$protocolId': typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
+  '/api/genomics/runs/$runId': typeof ApiGenomicsRunsRunIdRouteWithChildren
   '/api/hermesworld/reservations/confirm': typeof ApiHermesworldReservationsConfirmRoute
   '/api/mcp/$name/logs': typeof ApiMcpNameLogsRoute
   '/api/mcp/hub-sources/$id': typeof ApiMcpHubSourcesIdRoute
   '/api/sessions/$sessionKey/active-run': typeof ApiSessionsSessionKeyActiveRunRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
+  '/api/genomics/cases/$caseId/report': typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+  '/api/genomics/protocols/$protocolId/preview': typeof ApiGenomicsProtocolsProtocolIdPreviewRoute
+  '/api/genomics/runs/$runId/log': typeof ApiGenomicsRunsRunIdLogRoute
+  '/api/genomics/cases/$caseId/report/export-pdf': typeof ApiGenomicsCasesCaseIdReportExportPdfRoute
+  '/api/genomics/cases/$caseId/report/generate': typeof ApiGenomicsCasesCaseIdReportGenerateRoute
+  '/api/genomics/runs/$runId/link/$caseId': typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1318,6 +1420,9 @@ export interface FileRoutesById {
   '/api/claude-proxy/$': typeof ApiClaudeProxySplatRoute
   '/api/claude-tasks/$taskId': typeof ApiClaudeTasksTaskIdRoute
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
+  '/api/genomics/cases': typeof ApiGenomicsCasesRouteWithChildren
+  '/api/genomics/protocols': typeof ApiGenomicsProtocolsRouteWithChildren
+  '/api/genomics/runs': typeof ApiGenomicsRunsRouteWithChildren
   '/api/hermes-tasks/$taskId': typeof ApiHermesTasksTaskIdRoute
   '/api/hermesworld/reservations': typeof ApiHermesworldReservationsRouteWithChildren
   '/api/knowledge/config': typeof ApiKnowledgeConfigRoute
@@ -1357,11 +1462,20 @@ export interface FileRoutesById {
   '/api/update/agent': typeof ApiUpdateAgentRoute
   '/api/update/status': typeof ApiUpdateStatusRoute
   '/api/update/workspace': typeof ApiUpdateWorkspaceRoute
+  '/api/genomics/cases/$caseId': typeof ApiGenomicsCasesCaseIdRouteWithChildren
+  '/api/genomics/protocols/$protocolId': typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
+  '/api/genomics/runs/$runId': typeof ApiGenomicsRunsRunIdRouteWithChildren
   '/api/hermesworld/reservations/confirm': typeof ApiHermesworldReservationsConfirmRoute
   '/api/mcp/$name/logs': typeof ApiMcpNameLogsRoute
   '/api/mcp/hub-sources/$id': typeof ApiMcpHubSourcesIdRoute
   '/api/sessions/$sessionKey/active-run': typeof ApiSessionsSessionKeyActiveRunRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
+  '/api/genomics/cases/$caseId/report': typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+  '/api/genomics/protocols/$protocolId/preview': typeof ApiGenomicsProtocolsProtocolIdPreviewRoute
+  '/api/genomics/runs/$runId/log': typeof ApiGenomicsRunsRunIdLogRoute
+  '/api/genomics/cases/$caseId/report/export-pdf': typeof ApiGenomicsCasesCaseIdReportExportPdfRoute
+  '/api/genomics/cases/$caseId/report/generate': typeof ApiGenomicsCasesCaseIdReportGenerateRoute
+  '/api/genomics/runs/$runId/link/$caseId': typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1471,6 +1585,9 @@ export interface FileRouteTypes {
     | '/api/claude-proxy/$'
     | '/api/claude-tasks/$taskId'
     | '/api/dashboard/overview'
+    | '/api/genomics/cases'
+    | '/api/genomics/protocols'
+    | '/api/genomics/runs'
     | '/api/hermes-tasks/$taskId'
     | '/api/hermesworld/reservations'
     | '/api/knowledge/config'
@@ -1510,11 +1627,20 @@ export interface FileRouteTypes {
     | '/api/update/agent'
     | '/api/update/status'
     | '/api/update/workspace'
+    | '/api/genomics/cases/$caseId'
+    | '/api/genomics/protocols/$protocolId'
+    | '/api/genomics/runs/$runId'
     | '/api/hermesworld/reservations/confirm'
     | '/api/mcp/$name/logs'
     | '/api/mcp/hub-sources/$id'
     | '/api/sessions/$sessionKey/active-run'
     | '/api/sessions/$sessionKey/status'
+    | '/api/genomics/cases/$caseId/report'
+    | '/api/genomics/protocols/$protocolId/preview'
+    | '/api/genomics/runs/$runId/log'
+    | '/api/genomics/cases/$caseId/report/export-pdf'
+    | '/api/genomics/cases/$caseId/report/generate'
+    | '/api/genomics/runs/$runId/link/$caseId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1621,6 +1747,9 @@ export interface FileRouteTypes {
     | '/api/claude-proxy/$'
     | '/api/claude-tasks/$taskId'
     | '/api/dashboard/overview'
+    | '/api/genomics/cases'
+    | '/api/genomics/protocols'
+    | '/api/genomics/runs'
     | '/api/hermes-tasks/$taskId'
     | '/api/hermesworld/reservations'
     | '/api/knowledge/config'
@@ -1660,11 +1789,20 @@ export interface FileRouteTypes {
     | '/api/update/agent'
     | '/api/update/status'
     | '/api/update/workspace'
+    | '/api/genomics/cases/$caseId'
+    | '/api/genomics/protocols/$protocolId'
+    | '/api/genomics/runs/$runId'
     | '/api/hermesworld/reservations/confirm'
     | '/api/mcp/$name/logs'
     | '/api/mcp/hub-sources/$id'
     | '/api/sessions/$sessionKey/active-run'
     | '/api/sessions/$sessionKey/status'
+    | '/api/genomics/cases/$caseId/report'
+    | '/api/genomics/protocols/$protocolId/preview'
+    | '/api/genomics/runs/$runId/log'
+    | '/api/genomics/cases/$caseId/report/export-pdf'
+    | '/api/genomics/cases/$caseId/report/generate'
+    | '/api/genomics/runs/$runId/link/$caseId'
   id:
     | '__root__'
     | '/'
@@ -1772,6 +1910,9 @@ export interface FileRouteTypes {
     | '/api/claude-proxy/$'
     | '/api/claude-tasks/$taskId'
     | '/api/dashboard/overview'
+    | '/api/genomics/cases'
+    | '/api/genomics/protocols'
+    | '/api/genomics/runs'
     | '/api/hermes-tasks/$taskId'
     | '/api/hermesworld/reservations'
     | '/api/knowledge/config'
@@ -1811,11 +1952,20 @@ export interface FileRouteTypes {
     | '/api/update/agent'
     | '/api/update/status'
     | '/api/update/workspace'
+    | '/api/genomics/cases/$caseId'
+    | '/api/genomics/protocols/$protocolId'
+    | '/api/genomics/runs/$runId'
     | '/api/hermesworld/reservations/confirm'
     | '/api/mcp/$name/logs'
     | '/api/mcp/hub-sources/$id'
     | '/api/sessions/$sessionKey/active-run'
     | '/api/sessions/$sessionKey/status'
+    | '/api/genomics/cases/$caseId/report'
+    | '/api/genomics/protocols/$protocolId/preview'
+    | '/api/genomics/runs/$runId/log'
+    | '/api/genomics/cases/$caseId/report/export-pdf'
+    | '/api/genomics/cases/$caseId/report/generate'
+    | '/api/genomics/runs/$runId/link/$caseId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1918,6 +2068,9 @@ export interface RootRouteChildren {
   ChatIndexRoute: typeof ChatIndexRoute
   ApiClaudeProxySplatRoute: typeof ApiClaudeProxySplatRoute
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
+  ApiGenomicsCasesRoute: typeof ApiGenomicsCasesRouteWithChildren
+  ApiGenomicsProtocolsRoute: typeof ApiGenomicsProtocolsRouteWithChildren
+  ApiGenomicsRunsRoute: typeof ApiGenomicsRunsRouteWithChildren
   ApiHermesworldReservationsRoute: typeof ApiHermesworldReservationsRouteWithChildren
   ApiKnowledgeConfigRoute: typeof ApiKnowledgeConfigRoute
   ApiKnowledgeGraphRoute: typeof ApiKnowledgeGraphRoute
@@ -2915,6 +3068,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHermesTasksTaskIdRouteImport
       parentRoute: typeof ApiHermesTasksRoute
     }
+    '/api/genomics/runs': {
+      id: '/api/genomics/runs'
+      path: '/api/genomics/runs'
+      fullPath: '/api/genomics/runs'
+      preLoaderRoute: typeof ApiGenomicsRunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/genomics/protocols': {
+      id: '/api/genomics/protocols'
+      path: '/api/genomics/protocols'
+      fullPath: '/api/genomics/protocols'
+      preLoaderRoute: typeof ApiGenomicsProtocolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/genomics/cases': {
+      id: '/api/genomics/cases'
+      path: '/api/genomics/cases'
+      fullPath: '/api/genomics/cases'
+      preLoaderRoute: typeof ApiGenomicsCasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/dashboard/overview': {
       id: '/api/dashboard/overview'
       path: '/api/dashboard/overview'
@@ -2984,6 +3158,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/hermesworld/reservations/confirm'
       preLoaderRoute: typeof ApiHermesworldReservationsConfirmRouteImport
       parentRoute: typeof ApiHermesworldReservationsRoute
+    }
+    '/api/genomics/runs/$runId': {
+      id: '/api/genomics/runs/$runId'
+      path: '/$runId'
+      fullPath: '/api/genomics/runs/$runId'
+      preLoaderRoute: typeof ApiGenomicsRunsRunIdRouteImport
+      parentRoute: typeof ApiGenomicsRunsRoute
+    }
+    '/api/genomics/protocols/$protocolId': {
+      id: '/api/genomics/protocols/$protocolId'
+      path: '/$protocolId'
+      fullPath: '/api/genomics/protocols/$protocolId'
+      preLoaderRoute: typeof ApiGenomicsProtocolsProtocolIdRouteImport
+      parentRoute: typeof ApiGenomicsProtocolsRoute
+    }
+    '/api/genomics/cases/$caseId': {
+      id: '/api/genomics/cases/$caseId'
+      path: '/$caseId'
+      fullPath: '/api/genomics/cases/$caseId'
+      preLoaderRoute: typeof ApiGenomicsCasesCaseIdRouteImport
+      parentRoute: typeof ApiGenomicsCasesRoute
+    }
+    '/api/genomics/runs/$runId/log': {
+      id: '/api/genomics/runs/$runId/log'
+      path: '/log'
+      fullPath: '/api/genomics/runs/$runId/log'
+      preLoaderRoute: typeof ApiGenomicsRunsRunIdLogRouteImport
+      parentRoute: typeof ApiGenomicsRunsRunIdRoute
+    }
+    '/api/genomics/protocols/$protocolId/preview': {
+      id: '/api/genomics/protocols/$protocolId/preview'
+      path: '/preview'
+      fullPath: '/api/genomics/protocols/$protocolId/preview'
+      preLoaderRoute: typeof ApiGenomicsProtocolsProtocolIdPreviewRouteImport
+      parentRoute: typeof ApiGenomicsProtocolsProtocolIdRoute
+    }
+    '/api/genomics/cases/$caseId/report': {
+      id: '/api/genomics/cases/$caseId/report'
+      path: '/report'
+      fullPath: '/api/genomics/cases/$caseId/report'
+      preLoaderRoute: typeof ApiGenomicsCasesCaseIdReportRouteImport
+      parentRoute: typeof ApiGenomicsCasesCaseIdRoute
+    }
+    '/api/genomics/runs/$runId/link/$caseId': {
+      id: '/api/genomics/runs/$runId/link/$caseId'
+      path: '/link/$caseId'
+      fullPath: '/api/genomics/runs/$runId/link/$caseId'
+      preLoaderRoute: typeof ApiGenomicsRunsRunIdLinkCaseIdRouteImport
+      parentRoute: typeof ApiGenomicsRunsRunIdRoute
+    }
+    '/api/genomics/cases/$caseId/report/generate': {
+      id: '/api/genomics/cases/$caseId/report/generate'
+      path: '/generate'
+      fullPath: '/api/genomics/cases/$caseId/report/generate'
+      preLoaderRoute: typeof ApiGenomicsCasesCaseIdReportGenerateRouteImport
+      parentRoute: typeof ApiGenomicsCasesCaseIdReportRoute
+    }
+    '/api/genomics/cases/$caseId/report/export-pdf': {
+      id: '/api/genomics/cases/$caseId/report/export-pdf'
+      path: '/export-pdf'
+      fullPath: '/api/genomics/cases/$caseId/report/export-pdf'
+      preLoaderRoute: typeof ApiGenomicsCasesCaseIdReportExportPdfRouteImport
+      parentRoute: typeof ApiGenomicsCasesCaseIdReportRoute
     }
   }
 }
@@ -3183,6 +3420,102 @@ const ApiSwarmRuntimeRouteWithChildren = ApiSwarmRuntimeRoute._addFileChildren(
   ApiSwarmRuntimeRouteChildren,
 )
 
+interface ApiGenomicsCasesCaseIdReportRouteChildren {
+  ApiGenomicsCasesCaseIdReportExportPdfRoute: typeof ApiGenomicsCasesCaseIdReportExportPdfRoute
+  ApiGenomicsCasesCaseIdReportGenerateRoute: typeof ApiGenomicsCasesCaseIdReportGenerateRoute
+}
+
+const ApiGenomicsCasesCaseIdReportRouteChildren: ApiGenomicsCasesCaseIdReportRouteChildren =
+  {
+    ApiGenomicsCasesCaseIdReportExportPdfRoute:
+      ApiGenomicsCasesCaseIdReportExportPdfRoute,
+    ApiGenomicsCasesCaseIdReportGenerateRoute:
+      ApiGenomicsCasesCaseIdReportGenerateRoute,
+  }
+
+const ApiGenomicsCasesCaseIdReportRouteWithChildren =
+  ApiGenomicsCasesCaseIdReportRoute._addFileChildren(
+    ApiGenomicsCasesCaseIdReportRouteChildren,
+  )
+
+interface ApiGenomicsCasesCaseIdRouteChildren {
+  ApiGenomicsCasesCaseIdReportRoute: typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+}
+
+const ApiGenomicsCasesCaseIdRouteChildren: ApiGenomicsCasesCaseIdRouteChildren =
+  {
+    ApiGenomicsCasesCaseIdReportRoute:
+      ApiGenomicsCasesCaseIdReportRouteWithChildren,
+  }
+
+const ApiGenomicsCasesCaseIdRouteWithChildren =
+  ApiGenomicsCasesCaseIdRoute._addFileChildren(
+    ApiGenomicsCasesCaseIdRouteChildren,
+  )
+
+interface ApiGenomicsCasesRouteChildren {
+  ApiGenomicsCasesCaseIdRoute: typeof ApiGenomicsCasesCaseIdRouteWithChildren
+}
+
+const ApiGenomicsCasesRouteChildren: ApiGenomicsCasesRouteChildren = {
+  ApiGenomicsCasesCaseIdRoute: ApiGenomicsCasesCaseIdRouteWithChildren,
+}
+
+const ApiGenomicsCasesRouteWithChildren =
+  ApiGenomicsCasesRoute._addFileChildren(ApiGenomicsCasesRouteChildren)
+
+interface ApiGenomicsProtocolsProtocolIdRouteChildren {
+  ApiGenomicsProtocolsProtocolIdPreviewRoute: typeof ApiGenomicsProtocolsProtocolIdPreviewRoute
+}
+
+const ApiGenomicsProtocolsProtocolIdRouteChildren: ApiGenomicsProtocolsProtocolIdRouteChildren =
+  {
+    ApiGenomicsProtocolsProtocolIdPreviewRoute:
+      ApiGenomicsProtocolsProtocolIdPreviewRoute,
+  }
+
+const ApiGenomicsProtocolsProtocolIdRouteWithChildren =
+  ApiGenomicsProtocolsProtocolIdRoute._addFileChildren(
+    ApiGenomicsProtocolsProtocolIdRouteChildren,
+  )
+
+interface ApiGenomicsProtocolsRouteChildren {
+  ApiGenomicsProtocolsProtocolIdRoute: typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
+}
+
+const ApiGenomicsProtocolsRouteChildren: ApiGenomicsProtocolsRouteChildren = {
+  ApiGenomicsProtocolsProtocolIdRoute:
+    ApiGenomicsProtocolsProtocolIdRouteWithChildren,
+}
+
+const ApiGenomicsProtocolsRouteWithChildren =
+  ApiGenomicsProtocolsRoute._addFileChildren(ApiGenomicsProtocolsRouteChildren)
+
+interface ApiGenomicsRunsRunIdRouteChildren {
+  ApiGenomicsRunsRunIdLogRoute: typeof ApiGenomicsRunsRunIdLogRoute
+  ApiGenomicsRunsRunIdLinkCaseIdRoute: typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
+}
+
+const ApiGenomicsRunsRunIdRouteChildren: ApiGenomicsRunsRunIdRouteChildren = {
+  ApiGenomicsRunsRunIdLogRoute: ApiGenomicsRunsRunIdLogRoute,
+  ApiGenomicsRunsRunIdLinkCaseIdRoute: ApiGenomicsRunsRunIdLinkCaseIdRoute,
+}
+
+const ApiGenomicsRunsRunIdRouteWithChildren =
+  ApiGenomicsRunsRunIdRoute._addFileChildren(ApiGenomicsRunsRunIdRouteChildren)
+
+interface ApiGenomicsRunsRouteChildren {
+  ApiGenomicsRunsRunIdRoute: typeof ApiGenomicsRunsRunIdRouteWithChildren
+}
+
+const ApiGenomicsRunsRouteChildren: ApiGenomicsRunsRouteChildren = {
+  ApiGenomicsRunsRunIdRoute: ApiGenomicsRunsRunIdRouteWithChildren,
+}
+
+const ApiGenomicsRunsRouteWithChildren = ApiGenomicsRunsRoute._addFileChildren(
+  ApiGenomicsRunsRouteChildren,
+)
+
 interface ApiHermesworldReservationsRouteChildren {
   ApiHermesworldReservationsConfirmRoute: typeof ApiHermesworldReservationsConfirmRoute
 }
@@ -3298,6 +3631,9 @@ const rootRouteChildren: RootRouteChildren = {
   ChatIndexRoute: ChatIndexRoute,
   ApiClaudeProxySplatRoute: ApiClaudeProxySplatRoute,
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
+  ApiGenomicsCasesRoute: ApiGenomicsCasesRouteWithChildren,
+  ApiGenomicsProtocolsRoute: ApiGenomicsProtocolsRouteWithChildren,
+  ApiGenomicsRunsRoute: ApiGenomicsRunsRouteWithChildren,
   ApiHermesworldReservationsRoute: ApiHermesworldReservationsRouteWithChildren,
   ApiKnowledgeConfigRoute: ApiKnowledgeConfigRoute,
   ApiKnowledgeGraphRoute: ApiKnowledgeGraphRoute,

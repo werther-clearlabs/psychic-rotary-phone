@@ -1,0 +1,72 @@
+<h2>App Shell Navigation</h2>
+<p class="subtitle">Clinical dashboard is the landing page. Pick the nav structure that feels right.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;height:200px;font-size:11px;border:1px solid #333;border-radius:4px;overflow:hidden;">
+        <!-- Sidebar -->
+        <div style="width:140px;background:#111;padding:8px;display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+          <div style="color:#888;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:4px 4px 2px;">Clinical</div>
+          <div style="background:#1e3a2f;color:#4ade80;padding:4px 8px;border-radius:3px;">⬡ Dashboard</div>
+          <div style="color:#ccc;padding:4px 8px;">⬡ Cases</div>
+          <div style="color:#ccc;padding:4px 8px;">⬡ Runs</div>
+          <div style="color:#555;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:8px 4px 2px;margin-top:4px;">Workspace</div>
+          <div style="color:#666;padding:4px 8px;">⬡ Chat</div>
+          <div style="color:#666;padding:4px 8px;">⬡ Terminal</div>
+          <div style="color:#666;padding:4px 8px;">⬡ Agents</div>
+        </div>
+        <!-- Main -->
+        <div style="flex:1;background:#0a0a0a;padding:10px;">
+          <div style="color:#4ade80;font-size:10px;margin-bottom:6px;">Genomics Dashboard</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px;">
+            <div style="background:#111;border-radius:3px;padding:6px;color:#888;font-size:9px;">Cases <span style="color:#fff;float:right;">12</span></div>
+            <div style="background:#111;border-radius:3px;padding:6px;color:#888;font-size:9px;">Runs <span style="color:#fff;float:right;">8</span></div>
+          </div>
+          <div style="background:#111;border-radius:3px;padding:6px;color:#555;font-size:9px;height:80px;">Recent activity...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Left sidebar, two sections</h3>
+      <p>Clinical (Cases, Runs, Dashboard) sits above Workspace tools (Chat, Terminal, Agents) in a persistent left rail. Similar to the existing workspace nav pattern.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="display:flex;flex-direction:column;height:200px;font-size:11px;border:1px solid #333;border-radius:4px;overflow:hidden;">
+        <!-- Top nav -->
+        <div style="background:#111;padding:6px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #222;">
+          <span style="color:#4ade80;font-weight:600;font-size:10px;">⬡ GENOMICS</span>
+          <span style="color:#4ade80;font-size:10px;border-bottom:1px solid #4ade80;padding-bottom:2px;">Dashboard</span>
+          <span style="color:#888;font-size:10px;">Cases</span>
+          <span style="color:#888;font-size:10px;">Runs</span>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <span style="color:#555;font-size:9px;background:#1a1a1a;padding:2px 6px;border-radius:3px;">Chat</span>
+            <span style="color:#555;font-size:9px;background:#1a1a1a;padding:2px 6px;border-radius:3px;">Terminal</span>
+            <span style="color:#555;font-size:9px;background:#1a1a1a;padding:2px 6px;border-radius:3px;">Tools ▾</span>
+          </div>
+        </div>
+        <!-- Content -->
+        <div style="flex:1;background:#0a0a0a;padding:10px;">
+          <div style="color:#ccc;font-size:10px;margin-bottom:6px;">Genomics Dashboard</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px;">
+            <div style="background:#111;border-radius:3px;padding:6px;color:#888;font-size:9px;">Cases <span style="color:#fff;float:right;">12</span></div>
+            <div style="background:#111;border-radius:3px;padding:6px;color:#888;font-size:9px;">Runs <span style="color:#fff;float:right;">8</span></div>
+            <div style="background:#111;border-radius:3px;padding:6px;color:#888;font-size:9px;">Variants <span style="color:#fff;float:right;">240</span></div>
+          </div>
+          <div style="background:#111;border-radius:3px;padding:6px;color:#555;font-size:9px;height:60px;">Recent activity...</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Top nav, workspace tools in pill buttons</h3>
+      <p>Cases / Runs / Dashboard in a top tab bar. Chat, Terminal, and other workspace tools pushed to the top-right as small pill buttons — accessible but secondary.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click to select, then let me know in the terminal.</p>
