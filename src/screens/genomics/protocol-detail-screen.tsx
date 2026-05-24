@@ -9,7 +9,7 @@ async function fetchProtocol(id: string): Promise<Protocol> {
 }
 
 export function ProtocolDetailScreen() {
-  const { protocolId } = useParams({ from: '/genomics/protocols/$protocolId' })
+  const { protocolId } = useParams({ from: '/genomics/protocols_/$protocolId' })
   const { data: protocol, isLoading } = useQuery({
     queryKey: ['genomics', 'protocol', protocolId],
     queryFn: () => fetchProtocol(protocolId),

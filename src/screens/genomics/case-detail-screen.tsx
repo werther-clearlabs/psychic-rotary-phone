@@ -32,7 +32,7 @@ const TABS = [
 type Tab = (typeof TABS)[number]
 
 export function CaseDetailScreen() {
-  const { caseId } = useParams({ from: '/genomics/cases/$caseId' })
+  const { caseId } = useParams({ from: '/genomics/cases_/$caseId' })
   const [activeTab, setActiveTab] = useState<Tab>('Overview')
 
   const { data, isLoading } = useQuery({

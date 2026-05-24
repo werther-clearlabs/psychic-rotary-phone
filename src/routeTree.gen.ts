@@ -114,9 +114,9 @@ import { Route as ApiChatEventsRouteImport } from './routes/api/chat-events'
 import { Route as ApiAuthCheckRouteImport } from './routes/api/auth-check'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
 import { Route as ApiArtifactsRouteImport } from './routes/api/artifacts'
-import { Route as GenomicsRunsRunIdRouteImport } from './routes/genomics/runs.$runId'
-import { Route as GenomicsProtocolsProtocolIdRouteImport } from './routes/genomics/protocols.$protocolId'
-import { Route as GenomicsCasesCaseIdRouteImport } from './routes/genomics/cases.$caseId'
+import { Route as GenomicsRunsRunIdRouteImport } from './routes/genomics/runs_.$runId'
+import { Route as GenomicsProtocolsProtocolIdRouteImport } from './routes/genomics/protocols_.$protocolId'
+import { Route as GenomicsCasesCaseIdRouteImport } from './routes/genomics/cases_.$caseId'
 import { Route as ApiUpdateWorkspaceRouteImport } from './routes/api/update/workspace'
 import { Route as ApiUpdateStatusRouteImport } from './routes/api/update/status'
 import { Route as ApiUpdateAgentRouteImport } from './routes/api/update/agent'
@@ -706,20 +706,20 @@ const ApiArtifactsRoute = ApiArtifactsRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const GenomicsRunsRunIdRoute = GenomicsRunsRunIdRouteImport.update({
-  id: '/$runId',
-  path: '/$runId',
-  getParentRoute: () => GenomicsRunsRoute,
+  id: '/runs_/$runId',
+  path: '/runs/$runId',
+  getParentRoute: () => GenomicsRoute,
 } as any)
 const GenomicsProtocolsProtocolIdRoute =
   GenomicsProtocolsProtocolIdRouteImport.update({
-    id: '/$protocolId',
-    path: '/$protocolId',
-    getParentRoute: () => GenomicsProtocolsRoute,
+    id: '/protocols_/$protocolId',
+    path: '/protocols/$protocolId',
+    getParentRoute: () => GenomicsRoute,
   } as any)
 const GenomicsCasesCaseIdRoute = GenomicsCasesCaseIdRouteImport.update({
-  id: '/$caseId',
-  path: '/$caseId',
-  getParentRoute: () => GenomicsCasesRoute,
+  id: '/cases_/$caseId',
+  path: '/cases/$caseId',
+  getParentRoute: () => GenomicsRoute,
 } as any)
 const ApiUpdateWorkspaceRoute = ApiUpdateWorkspaceRouteImport.update({
   id: '/api/update/workspace',
@@ -1135,9 +1135,9 @@ export interface FileRoutesByFullPath {
   '/api/vt-capital': typeof ApiVtCapitalRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
-  '/genomics/cases': typeof GenomicsCasesRouteWithChildren
-  '/genomics/protocols': typeof GenomicsProtocolsRouteWithChildren
-  '/genomics/runs': typeof GenomicsRunsRouteWithChildren
+  '/genomics/cases': typeof GenomicsCasesRoute
+  '/genomics/protocols': typeof GenomicsProtocolsRoute
+  '/genomics/runs': typeof GenomicsRunsRoute
   '/reserve/confirm': typeof ReserveConfirmRoute
   '/settings/providers': typeof SettingsProvidersRoute
   '/chat/': typeof ChatIndexRoute
@@ -1304,9 +1304,9 @@ export interface FileRoutesByTo {
   '/api/vt-capital': typeof ApiVtCapitalRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
-  '/genomics/cases': typeof GenomicsCasesRouteWithChildren
-  '/genomics/protocols': typeof GenomicsProtocolsRouteWithChildren
-  '/genomics/runs': typeof GenomicsRunsRouteWithChildren
+  '/genomics/cases': typeof GenomicsCasesRoute
+  '/genomics/protocols': typeof GenomicsProtocolsRoute
+  '/genomics/runs': typeof GenomicsRunsRoute
   '/reserve/confirm': typeof ReserveConfirmRoute
   '/settings/providers': typeof SettingsProvidersRoute
   '/chat': typeof ChatIndexRoute
@@ -1476,9 +1476,9 @@ export interface FileRoutesById {
   '/api/vt-capital': typeof ApiVtCapitalRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
-  '/genomics/cases': typeof GenomicsCasesRouteWithChildren
-  '/genomics/protocols': typeof GenomicsProtocolsRouteWithChildren
-  '/genomics/runs': typeof GenomicsRunsRouteWithChildren
+  '/genomics/cases': typeof GenomicsCasesRoute
+  '/genomics/protocols': typeof GenomicsProtocolsRoute
+  '/genomics/runs': typeof GenomicsRunsRoute
   '/reserve/confirm': typeof ReserveConfirmRoute
   '/settings/providers': typeof SettingsProvidersRoute
   '/chat/': typeof ChatIndexRoute
@@ -1531,9 +1531,9 @@ export interface FileRoutesById {
   '/api/update/agent': typeof ApiUpdateAgentRoute
   '/api/update/status': typeof ApiUpdateStatusRoute
   '/api/update/workspace': typeof ApiUpdateWorkspaceRoute
-  '/genomics/cases/$caseId': typeof GenomicsCasesCaseIdRoute
-  '/genomics/protocols/$protocolId': typeof GenomicsProtocolsProtocolIdRoute
-  '/genomics/runs/$runId': typeof GenomicsRunsRunIdRoute
+  '/genomics/cases_/$caseId': typeof GenomicsCasesCaseIdRoute
+  '/genomics/protocols_/$protocolId': typeof GenomicsProtocolsProtocolIdRoute
+  '/genomics/runs_/$runId': typeof GenomicsRunsRunIdRoute
   '/api/genomics/cases/$caseId': typeof ApiGenomicsCasesCaseIdRouteWithChildren
   '/api/genomics/protocols/$protocolId': typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
   '/api/genomics/runs/$runId': typeof ApiGenomicsRunsRunIdRouteWithChildren
@@ -2044,9 +2044,9 @@ export interface FileRouteTypes {
     | '/api/update/agent'
     | '/api/update/status'
     | '/api/update/workspace'
-    | '/genomics/cases/$caseId'
-    | '/genomics/protocols/$protocolId'
-    | '/genomics/runs/$runId'
+    | '/genomics/cases_/$caseId'
+    | '/genomics/protocols_/$protocolId'
+    | '/genomics/runs_/$runId'
     | '/api/genomics/cases/$caseId'
     | '/api/genomics/protocols/$protocolId'
     | '/api/genomics/runs/$runId'
@@ -2926,26 +2926,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiArtifactsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/genomics/runs/$runId': {
-      id: '/genomics/runs/$runId'
-      path: '/$runId'
+    '/genomics/runs_/$runId': {
+      id: '/genomics/runs_/$runId'
+      path: '/runs/$runId'
       fullPath: '/genomics/runs/$runId'
       preLoaderRoute: typeof GenomicsRunsRunIdRouteImport
-      parentRoute: typeof GenomicsRunsRoute
+      parentRoute: typeof GenomicsRoute
     }
-    '/genomics/protocols/$protocolId': {
-      id: '/genomics/protocols/$protocolId'
-      path: '/$protocolId'
+    '/genomics/protocols_/$protocolId': {
+      id: '/genomics/protocols_/$protocolId'
+      path: '/protocols/$protocolId'
       fullPath: '/genomics/protocols/$protocolId'
       preLoaderRoute: typeof GenomicsProtocolsProtocolIdRouteImport
-      parentRoute: typeof GenomicsProtocolsRoute
+      parentRoute: typeof GenomicsRoute
     }
-    '/genomics/cases/$caseId': {
-      id: '/genomics/cases/$caseId'
-      path: '/$caseId'
+    '/genomics/cases_/$caseId': {
+      id: '/genomics/cases_/$caseId'
+      path: '/cases/$caseId'
       fullPath: '/genomics/cases/$caseId'
       preLoaderRoute: typeof GenomicsCasesCaseIdRouteImport
-      parentRoute: typeof GenomicsCasesRoute
+      parentRoute: typeof GenomicsRoute
     }
     '/api/update/workspace': {
       id: '/api/update/workspace'
@@ -3377,53 +3377,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface GenomicsCasesRouteChildren {
+interface GenomicsRouteChildren {
+  GenomicsCasesRoute: typeof GenomicsCasesRoute
+  GenomicsProtocolsRoute: typeof GenomicsProtocolsRoute
+  GenomicsRunsRoute: typeof GenomicsRunsRoute
+  GenomicsIndexRoute: typeof GenomicsIndexRoute
   GenomicsCasesCaseIdRoute: typeof GenomicsCasesCaseIdRoute
-}
-
-const GenomicsCasesRouteChildren: GenomicsCasesRouteChildren = {
-  GenomicsCasesCaseIdRoute: GenomicsCasesCaseIdRoute,
-}
-
-const GenomicsCasesRouteWithChildren = GenomicsCasesRoute._addFileChildren(
-  GenomicsCasesRouteChildren,
-)
-
-interface GenomicsProtocolsRouteChildren {
   GenomicsProtocolsProtocolIdRoute: typeof GenomicsProtocolsProtocolIdRoute
-}
-
-const GenomicsProtocolsRouteChildren: GenomicsProtocolsRouteChildren = {
-  GenomicsProtocolsProtocolIdRoute: GenomicsProtocolsProtocolIdRoute,
-}
-
-const GenomicsProtocolsRouteWithChildren =
-  GenomicsProtocolsRoute._addFileChildren(GenomicsProtocolsRouteChildren)
-
-interface GenomicsRunsRouteChildren {
   GenomicsRunsRunIdRoute: typeof GenomicsRunsRunIdRoute
 }
 
-const GenomicsRunsRouteChildren: GenomicsRunsRouteChildren = {
-  GenomicsRunsRunIdRoute: GenomicsRunsRunIdRoute,
-}
-
-const GenomicsRunsRouteWithChildren = GenomicsRunsRoute._addFileChildren(
-  GenomicsRunsRouteChildren,
-)
-
-interface GenomicsRouteChildren {
-  GenomicsCasesRoute: typeof GenomicsCasesRouteWithChildren
-  GenomicsProtocolsRoute: typeof GenomicsProtocolsRouteWithChildren
-  GenomicsRunsRoute: typeof GenomicsRunsRouteWithChildren
-  GenomicsIndexRoute: typeof GenomicsIndexRoute
-}
-
 const GenomicsRouteChildren: GenomicsRouteChildren = {
-  GenomicsCasesRoute: GenomicsCasesRouteWithChildren,
-  GenomicsProtocolsRoute: GenomicsProtocolsRouteWithChildren,
-  GenomicsRunsRoute: GenomicsRunsRouteWithChildren,
+  GenomicsCasesRoute: GenomicsCasesRoute,
+  GenomicsProtocolsRoute: GenomicsProtocolsRoute,
+  GenomicsRunsRoute: GenomicsRunsRoute,
   GenomicsIndexRoute: GenomicsIndexRoute,
+  GenomicsCasesCaseIdRoute: GenomicsCasesCaseIdRoute,
+  GenomicsProtocolsProtocolIdRoute: GenomicsProtocolsProtocolIdRoute,
+  GenomicsRunsRunIdRoute: GenomicsRunsRunIdRoute,
 }
 
 const GenomicsRouteWithChildren = GenomicsRoute._addFileChildren(

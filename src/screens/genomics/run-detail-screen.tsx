@@ -18,7 +18,7 @@ const STAGE_ICON: Record<string, string> = {
 }
 
 export function RunDetailScreen() {
-  const { runId } = useParams({ from: '/genomics/runs/$runId' })
+  const { runId } = useParams({ from: '/genomics/runs_/$runId' })
   const appendRunLog = useGenomicsStore((s) => s.appendRunLog)
   const clearRunLog = useGenomicsStore((s) => s.clearRunLog)
   const logLines = useGenomicsStore((s) => s.runLogs[runId] ?? [])
