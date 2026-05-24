@@ -1,5 +1,5 @@
 // src/screens/genomics/components/report-canvas.tsx
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import MonacoEditor from '@monaco-editor/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGenomicsStore } from '../../../stores/genomics-store'
@@ -46,8 +46,10 @@ async function exportPdf(caseId: string): Promise<void> {
   const a = document.createElement('a')
   a.href = url
   a.download = `report-${caseId}.pdf`
+  document.body.appendChild(a)
   a.click()
-  URL.revokeObjectURL(url)
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 100)
 }
 
 interface Props {
@@ -79,12 +81,28 @@ export function ReportCanvas({ report, caseId }: Props) {
 
   const exportMutation = useMutation({ mutationFn: () => exportPdf(caseId) })
 
+  const patchMutationRef = useRef(patchMutation)
+  useEffect(() => {
+    patchMutationRef.current = patchMutation
+  })
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
+
   const handleEditorChange = useCallback(
     (value: string | undefined) => {
       if (!editingSection || value === undefined) return
-      patchMutation.mutate({ section: editingSection, content: value })
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      const sectionKey = editingSection
+      debounceRef.current = setTimeout(() => {
+        patchMutationRef.current.mutate({ section: sectionKey, content: value })
+      }, 400)
     },
-    [editingSection, patchMutation],
+    [editingSection],
   )
 
   const sectionKeys = Object.keys(SECTION_LABELS)
