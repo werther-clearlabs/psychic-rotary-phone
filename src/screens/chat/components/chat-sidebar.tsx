@@ -587,6 +587,10 @@ function ChatSidebarComponent({
   const isConductorActive = pathname === '/conductor'
   const isOperationsActive = pathname === '/operations'
   const isSwarmActive = pathname === '/swarm' || pathname === '/swarm2'
+  const isGenomicsDashboardActive = pathname === '/genomics' || pathname === '/genomics/'
+  const isGenomicsCasesActive = pathname.startsWith('/genomics/cases')
+  const isGenomicsRunsActive = pathname.startsWith('/genomics/runs')
+  const isGenomicsProtocolsActive = pathname.startsWith('/genomics/protocols')
   const mainRoutes = ['/chat', '/new', '/files', '/terminal']
   const knowledgeRoutes = ['/memory', '/skills']
   const systemRoutes = ['/settings', '/logs']
@@ -615,6 +619,12 @@ function ChatSidebarComponent({
     'claude-sidebar-knowledge-expanded',
     true,
   )
+  const [clinicalExpanded, setClinicalExpanded] = usePersistedBool(
+    'sidebar.clinicalExpanded',
+    true,
+  )
+  const toggleClinical = () => setClinicalExpanded((v) => !v)
+  const clinicalNav = '/genomics'
   const [_systemExpanded, _toggleSystem] = usePersistedBool(
     'claude-sidebar-system-expanded',
     false,
@@ -779,6 +789,37 @@ function ChatSidebarComponent({
   }
 
   const isDashboardActive = pathname === '/dashboard'
+
+  const clinicalItems: Array<NavItemDef> = [
+    {
+      kind: 'link',
+      to: '/genomics',
+      icon: DashboardSquare01Icon,
+      label: 'Genomics',
+      active: isGenomicsDashboardActive,
+    },
+    {
+      kind: 'link',
+      to: '/genomics/cases',
+      icon: UserGroupIcon,
+      label: 'Cases',
+      active: isGenomicsCasesActive,
+    },
+    {
+      kind: 'link',
+      to: '/genomics/runs',
+      icon: Rocket01Icon,
+      label: 'Runs',
+      active: isGenomicsRunsActive,
+    },
+    {
+      kind: 'link',
+      to: '/genomics/protocols',
+      icon: CheckListIcon,
+      label: 'Protocols',
+      active: isGenomicsProtocolsActive,
+    },
+  ]
 
   const mainItems: Array<NavItemDef> = [
     {
@@ -1076,6 +1117,23 @@ function ChatSidebarComponent({
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin flex flex-col">
         {/* Navigation sections */}
         <div className={cn('shrink-0 space-y-0.5 px-2', isMobile && 'order-2')}>
+          <SectionLabel
+            label="Clinical"
+            isCollapsed={isVisuallyCollapsed}
+            transition={transition}
+            collapsible
+            expanded={clinicalExpanded}
+            onToggle={toggleClinical}
+            navigateTo={clinicalNav}
+          />
+          <CollapsibleSection
+            expanded={clinicalExpanded || isCollapsed}
+            items={clinicalItems}
+            isCollapsed={isVisuallyCollapsed}
+            transition={transition}
+            onSelectSession={onSelectSession}
+          />
+
           <SectionLabel
             label="Main"
             isCollapsed={isVisuallyCollapsed}
