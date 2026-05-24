@@ -18,6 +18,63 @@ Two user groups: **bioinformatics team** (technical, pipeline operators) and **c
 
 ---
 
+## Design System
+
+The genomics portal uses the **Clear Labs Design System V3.0** (light theme). This is visually distinct from the existing hermes-workspace dark UI — the genomics screens are a light-theme portal layered on top of the same application shell.
+
+### Setup
+
+1. Add `DESIGN.MD` and `colors_and_type.css` to `src/styles/genomics/` (source of truth for all tokens)
+2. Import `colors_and_type.css` only in genomics route layouts — not globally — so existing dark workspace screens are unaffected
+3. Page background: `--gray-100` (`oklch(0.985 0.002 247.839)`) — near-white
+4. Card surfaces: `--white`, `border: 1px solid var(--gray-200)`, `border-radius: var(--cl-radius-md)` (5px)
+
+### Key tokens used throughout
+
+| Role | Token | Value |
+|---|---|---|
+| Brand primary | `--brand-500` | `oklch(0.559 0.122 237)` — blue |
+| Brand hover / links | `--brand-600` | `oklch(0.476 0.103 236.1)` |
+| Primary text | `--gray-900` | `oklch(0.308 0.02 260.6)` |
+| Secondary text | `--gray-700` | `oklch(0.551 0.035 263.4)` |
+| Sidebar background | `--gray-900` | same dark gray |
+| Sidebar active | `--gray-950` | `oklch(0.28 0.0062 258.36)` |
+| Success | `--color-green-500` / `--color-green-100` | status stripes, complete states |
+| Warning | `--color-yellow-500` / `--color-yellow-100` | |
+| Error | `--color-red-500` / `--color-red-100` | |
+
+### Typography
+
+- Font: `'Helvetica Neue', Helvetica, Arial, sans-serif` (font files in `/fonts/`)
+- UI uses Regular (400) and Bold (700) only
+- Section labels, table headers, status chips: **H6/MICRO — 11px Bold UPPERCASE, 0.44px letter-spacing**
+- Page titles: H2 Regular, 18px, Title Case
+- Card body text: Paragraph — 14px Regular, 22px line height
+- Condensed variant (`Helvetica Condensed`) for pipeline stage chips and compact chrome
+
+### Component patterns from CL Design System
+
+**Sidebar** (adapted — wider than the 60px icon-only CL sidebar to accommodate text labels per the approved nav mockup):
+- Background: `--gray-900`; active item: `--gray-950`
+- Section dividers: `--gray-800`
+- Active item left stripe: 3px, `--brand-500`
+
+**Title bar** — 56px, `--white` background, H2 Bold left-aligned at 24px padding, `1px solid --gray-200` bottom edge, right-aligned action buttons
+
+**Toolbar / tabs** — 48px, tab labels MICRO Bold UPPERCASE, active tab `--brand-500` bottom underline
+
+**Run / Status cards** — 4px left status stripe: `--color-green-500` (complete), `--color-red-500` (failed), `--gray-400` (pending/queued), `--brand-500` (running)
+
+**Pipeline stage chevrons** — Complete: `--color-green-100` fill / `--color-green-600` border; In Progress: `--brand-100` / `--brand-500`; Pending: `--gray-300` / `--gray-400`
+
+**Buttons** — `border-radius: 3px`; Primary: `--brand-500` bg / white text; Secondary: transparent / `--brand-500` border; importance hierarchy left (low) → right (high)
+
+**Data tables** — Header: 40px, MICRO Bold UPPERCASE `--gray-700`; rows: 48px, H5 Regular `--gray-900`; hover: `--gray-200`
+
+**Motion** — `cubic-bezier(0.4, 0, 0.2, 1)`, 120ms fast / 180ms default / 240ms slow
+
+---
+
 ## Architecture
 
 ### Approach
