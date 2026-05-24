@@ -25,6 +25,7 @@ import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as HermesWorldRouteImport } from './routes/hermes-world'
+import { Route as GenomicsRouteImport } from './routes/genomics'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as EarlyAccessRouteImport } from './routes/early-access'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -33,9 +34,13 @@ import { Route as AgoraRouteImport } from './routes/agora'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as GenomicsIndexRouteImport } from './routes/genomics/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as SettingsProvidersRouteImport } from './routes/settings/providers'
 import { Route as ReserveConfirmRouteImport } from './routes/reserve/confirm'
+import { Route as GenomicsRunsRouteImport } from './routes/genomics/runs'
+import { Route as GenomicsProtocolsRouteImport } from './routes/genomics/protocols'
+import { Route as GenomicsCasesRouteImport } from './routes/genomics/cases'
 import { Route as ChatSessionKeyRouteImport } from './routes/chat/$sessionKey'
 import { Route as ApiWorkspaceRouteImport } from './routes/api/workspace'
 import { Route as ApiVtCapitalRouteImport } from './routes/api/vt-capital'
@@ -109,6 +114,9 @@ import { Route as ApiChatEventsRouteImport } from './routes/api/chat-events'
 import { Route as ApiAuthCheckRouteImport } from './routes/api/auth-check'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
 import { Route as ApiArtifactsRouteImport } from './routes/api/artifacts'
+import { Route as GenomicsRunsRunIdRouteImport } from './routes/genomics/runs.$runId'
+import { Route as GenomicsProtocolsProtocolIdRouteImport } from './routes/genomics/protocols.$protocolId'
+import { Route as GenomicsCasesCaseIdRouteImport } from './routes/genomics/cases.$caseId'
 import { Route as ApiUpdateWorkspaceRouteImport } from './routes/api/update/workspace'
 import { Route as ApiUpdateStatusRouteImport } from './routes/api/update/status'
 import { Route as ApiUpdateAgentRouteImport } from './routes/api/update/agent'
@@ -251,6 +259,11 @@ const HermesWorldRoute = HermesWorldRouteImport.update({
   path: '/hermes-world',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GenomicsRoute = GenomicsRouteImport.update({
+  id: '/genomics',
+  path: '/genomics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FilesRoute = FilesRouteImport.update({
   id: '/files',
   path: '/files',
@@ -291,6 +304,11 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SettingsRoute,
 } as any)
+const GenomicsIndexRoute = GenomicsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GenomicsRoute,
+} as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
@@ -305,6 +323,21 @@ const ReserveConfirmRoute = ReserveConfirmRouteImport.update({
   id: '/confirm',
   path: '/confirm',
   getParentRoute: () => ReserveRoute,
+} as any)
+const GenomicsRunsRoute = GenomicsRunsRouteImport.update({
+  id: '/runs',
+  path: '/runs',
+  getParentRoute: () => GenomicsRoute,
+} as any)
+const GenomicsProtocolsRoute = GenomicsProtocolsRouteImport.update({
+  id: '/protocols',
+  path: '/protocols',
+  getParentRoute: () => GenomicsRoute,
+} as any)
+const GenomicsCasesRoute = GenomicsCasesRouteImport.update({
+  id: '/cases',
+  path: '/cases',
+  getParentRoute: () => GenomicsRoute,
 } as any)
 const ChatSessionKeyRoute = ChatSessionKeyRouteImport.update({
   id: '/chat/$sessionKey',
@@ -672,6 +705,22 @@ const ApiArtifactsRoute = ApiArtifactsRouteImport.update({
   path: '/api/artifacts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GenomicsRunsRunIdRoute = GenomicsRunsRunIdRouteImport.update({
+  id: '/$runId',
+  path: '/$runId',
+  getParentRoute: () => GenomicsRunsRoute,
+} as any)
+const GenomicsProtocolsProtocolIdRoute =
+  GenomicsProtocolsProtocolIdRouteImport.update({
+    id: '/$protocolId',
+    path: '/$protocolId',
+    getParentRoute: () => GenomicsProtocolsRoute,
+  } as any)
+const GenomicsCasesCaseIdRoute = GenomicsCasesCaseIdRouteImport.update({
+  id: '/$caseId',
+  path: '/$caseId',
+  getParentRoute: () => GenomicsCasesRoute,
+} as any)
 const ApiUpdateWorkspaceRoute = ApiUpdateWorkspaceRouteImport.update({
   id: '/api/update/workspace',
   path: '/api/update/workspace',
@@ -996,6 +1045,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/early-access': typeof EarlyAccessRoute
   '/files': typeof FilesRoute
+  '/genomics': typeof GenomicsRouteWithChildren
   '/hermes-world': typeof HermesWorldRoute
   '/jobs': typeof JobsRoute
   '/mcp': typeof McpRoute
@@ -1085,9 +1135,13 @@ export interface FileRoutesByFullPath {
   '/api/vt-capital': typeof ApiVtCapitalRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
+  '/genomics/cases': typeof GenomicsCasesRouteWithChildren
+  '/genomics/protocols': typeof GenomicsProtocolsRouteWithChildren
+  '/genomics/runs': typeof GenomicsRunsRouteWithChildren
   '/reserve/confirm': typeof ReserveConfirmRoute
   '/settings/providers': typeof SettingsProvidersRoute
   '/chat/': typeof ChatIndexRoute
+  '/genomics/': typeof GenomicsIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/artifacts/$artifactId': typeof ApiArtifactsArtifactIdRoute
   '/api/claude-jobs/$jobId': typeof ApiClaudeJobsJobIdRoute
@@ -1136,6 +1190,9 @@ export interface FileRoutesByFullPath {
   '/api/update/agent': typeof ApiUpdateAgentRoute
   '/api/update/status': typeof ApiUpdateStatusRoute
   '/api/update/workspace': typeof ApiUpdateWorkspaceRoute
+  '/genomics/cases/$caseId': typeof GenomicsCasesCaseIdRoute
+  '/genomics/protocols/$protocolId': typeof GenomicsProtocolsProtocolIdRoute
+  '/genomics/runs/$runId': typeof GenomicsRunsRunIdRoute
   '/api/genomics/cases/$caseId': typeof ApiGenomicsCasesCaseIdRouteWithChildren
   '/api/genomics/protocols/$protocolId': typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
   '/api/genomics/runs/$runId': typeof ApiGenomicsRunsRunIdRouteWithChildren
@@ -1247,9 +1304,13 @@ export interface FileRoutesByTo {
   '/api/vt-capital': typeof ApiVtCapitalRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
+  '/genomics/cases': typeof GenomicsCasesRouteWithChildren
+  '/genomics/protocols': typeof GenomicsProtocolsRouteWithChildren
+  '/genomics/runs': typeof GenomicsRunsRouteWithChildren
   '/reserve/confirm': typeof ReserveConfirmRoute
   '/settings/providers': typeof SettingsProvidersRoute
   '/chat': typeof ChatIndexRoute
+  '/genomics': typeof GenomicsIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/api/artifacts/$artifactId': typeof ApiArtifactsArtifactIdRoute
   '/api/claude-jobs/$jobId': typeof ApiClaudeJobsJobIdRoute
@@ -1298,6 +1359,9 @@ export interface FileRoutesByTo {
   '/api/update/agent': typeof ApiUpdateAgentRoute
   '/api/update/status': typeof ApiUpdateStatusRoute
   '/api/update/workspace': typeof ApiUpdateWorkspaceRoute
+  '/genomics/cases/$caseId': typeof GenomicsCasesCaseIdRoute
+  '/genomics/protocols/$protocolId': typeof GenomicsProtocolsProtocolIdRoute
+  '/genomics/runs/$runId': typeof GenomicsRunsRunIdRoute
   '/api/genomics/cases/$caseId': typeof ApiGenomicsCasesCaseIdRouteWithChildren
   '/api/genomics/protocols/$protocolId': typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
   '/api/genomics/runs/$runId': typeof ApiGenomicsRunsRunIdRouteWithChildren
@@ -1322,6 +1386,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/early-access': typeof EarlyAccessRoute
   '/files': typeof FilesRoute
+  '/genomics': typeof GenomicsRouteWithChildren
   '/hermes-world': typeof HermesWorldRoute
   '/jobs': typeof JobsRoute
   '/mcp': typeof McpRoute
@@ -1411,9 +1476,13 @@ export interface FileRoutesById {
   '/api/vt-capital': typeof ApiVtCapitalRoute
   '/api/workspace': typeof ApiWorkspaceRoute
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
+  '/genomics/cases': typeof GenomicsCasesRouteWithChildren
+  '/genomics/protocols': typeof GenomicsProtocolsRouteWithChildren
+  '/genomics/runs': typeof GenomicsRunsRouteWithChildren
   '/reserve/confirm': typeof ReserveConfirmRoute
   '/settings/providers': typeof SettingsProvidersRoute
   '/chat/': typeof ChatIndexRoute
+  '/genomics/': typeof GenomicsIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/artifacts/$artifactId': typeof ApiArtifactsArtifactIdRoute
   '/api/claude-jobs/$jobId': typeof ApiClaudeJobsJobIdRoute
@@ -1462,6 +1531,9 @@ export interface FileRoutesById {
   '/api/update/agent': typeof ApiUpdateAgentRoute
   '/api/update/status': typeof ApiUpdateStatusRoute
   '/api/update/workspace': typeof ApiUpdateWorkspaceRoute
+  '/genomics/cases/$caseId': typeof GenomicsCasesCaseIdRoute
+  '/genomics/protocols/$protocolId': typeof GenomicsProtocolsProtocolIdRoute
+  '/genomics/runs/$runId': typeof GenomicsRunsRunIdRoute
   '/api/genomics/cases/$caseId': typeof ApiGenomicsCasesCaseIdRouteWithChildren
   '/api/genomics/protocols/$protocolId': typeof ApiGenomicsProtocolsProtocolIdRouteWithChildren
   '/api/genomics/runs/$runId': typeof ApiGenomicsRunsRunIdRouteWithChildren
@@ -1487,6 +1559,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/early-access'
     | '/files'
+    | '/genomics'
     | '/hermes-world'
     | '/jobs'
     | '/mcp'
@@ -1576,9 +1649,13 @@ export interface FileRouteTypes {
     | '/api/vt-capital'
     | '/api/workspace'
     | '/chat/$sessionKey'
+    | '/genomics/cases'
+    | '/genomics/protocols'
+    | '/genomics/runs'
     | '/reserve/confirm'
     | '/settings/providers'
     | '/chat/'
+    | '/genomics/'
     | '/settings/'
     | '/api/artifacts/$artifactId'
     | '/api/claude-jobs/$jobId'
@@ -1627,6 +1704,9 @@ export interface FileRouteTypes {
     | '/api/update/agent'
     | '/api/update/status'
     | '/api/update/workspace'
+    | '/genomics/cases/$caseId'
+    | '/genomics/protocols/$protocolId'
+    | '/genomics/runs/$runId'
     | '/api/genomics/cases/$caseId'
     | '/api/genomics/protocols/$protocolId'
     | '/api/genomics/runs/$runId'
@@ -1738,9 +1818,13 @@ export interface FileRouteTypes {
     | '/api/vt-capital'
     | '/api/workspace'
     | '/chat/$sessionKey'
+    | '/genomics/cases'
+    | '/genomics/protocols'
+    | '/genomics/runs'
     | '/reserve/confirm'
     | '/settings/providers'
     | '/chat'
+    | '/genomics'
     | '/settings'
     | '/api/artifacts/$artifactId'
     | '/api/claude-jobs/$jobId'
@@ -1789,6 +1873,9 @@ export interface FileRouteTypes {
     | '/api/update/agent'
     | '/api/update/status'
     | '/api/update/workspace'
+    | '/genomics/cases/$caseId'
+    | '/genomics/protocols/$protocolId'
+    | '/genomics/runs/$runId'
     | '/api/genomics/cases/$caseId'
     | '/api/genomics/protocols/$protocolId'
     | '/api/genomics/runs/$runId'
@@ -1812,6 +1899,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/early-access'
     | '/files'
+    | '/genomics'
     | '/hermes-world'
     | '/jobs'
     | '/mcp'
@@ -1901,9 +1989,13 @@ export interface FileRouteTypes {
     | '/api/vt-capital'
     | '/api/workspace'
     | '/chat/$sessionKey'
+    | '/genomics/cases'
+    | '/genomics/protocols'
+    | '/genomics/runs'
     | '/reserve/confirm'
     | '/settings/providers'
     | '/chat/'
+    | '/genomics/'
     | '/settings/'
     | '/api/artifacts/$artifactId'
     | '/api/claude-jobs/$jobId'
@@ -1952,6 +2044,9 @@ export interface FileRouteTypes {
     | '/api/update/agent'
     | '/api/update/status'
     | '/api/update/workspace'
+    | '/genomics/cases/$caseId'
+    | '/genomics/protocols/$protocolId'
+    | '/genomics/runs/$runId'
     | '/api/genomics/cases/$caseId'
     | '/api/genomics/protocols/$protocolId'
     | '/api/genomics/runs/$runId'
@@ -1976,6 +2071,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EarlyAccessRoute: typeof EarlyAccessRoute
   FilesRoute: typeof FilesRoute
+  GenomicsRoute: typeof GenomicsRouteWithChildren
   HermesWorldRoute: typeof HermesWorldRoute
   JobsRoute: typeof JobsRoute
   McpRoute: typeof McpRoute
@@ -2207,6 +2303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HermesWorldRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/genomics': {
+      id: '/genomics'
+      path: '/genomics'
+      fullPath: '/genomics'
+      preLoaderRoute: typeof GenomicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/files': {
       id: '/files'
       path: '/files'
@@ -2263,6 +2366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof SettingsRoute
     }
+    '/genomics/': {
+      id: '/genomics/'
+      path: '/'
+      fullPath: '/genomics/'
+      preLoaderRoute: typeof GenomicsIndexRouteImport
+      parentRoute: typeof GenomicsRoute
+    }
     '/chat/': {
       id: '/chat/'
       path: '/chat'
@@ -2283,6 +2393,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/reserve/confirm'
       preLoaderRoute: typeof ReserveConfirmRouteImport
       parentRoute: typeof ReserveRoute
+    }
+    '/genomics/runs': {
+      id: '/genomics/runs'
+      path: '/runs'
+      fullPath: '/genomics/runs'
+      preLoaderRoute: typeof GenomicsRunsRouteImport
+      parentRoute: typeof GenomicsRoute
+    }
+    '/genomics/protocols': {
+      id: '/genomics/protocols'
+      path: '/protocols'
+      fullPath: '/genomics/protocols'
+      preLoaderRoute: typeof GenomicsProtocolsRouteImport
+      parentRoute: typeof GenomicsRoute
+    }
+    '/genomics/cases': {
+      id: '/genomics/cases'
+      path: '/cases'
+      fullPath: '/genomics/cases'
+      preLoaderRoute: typeof GenomicsCasesRouteImport
+      parentRoute: typeof GenomicsRoute
     }
     '/chat/$sessionKey': {
       id: '/chat/$sessionKey'
@@ -2795,6 +2926,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiArtifactsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/genomics/runs/$runId': {
+      id: '/genomics/runs/$runId'
+      path: '/$runId'
+      fullPath: '/genomics/runs/$runId'
+      preLoaderRoute: typeof GenomicsRunsRunIdRouteImport
+      parentRoute: typeof GenomicsRunsRoute
+    }
+    '/genomics/protocols/$protocolId': {
+      id: '/genomics/protocols/$protocolId'
+      path: '/$protocolId'
+      fullPath: '/genomics/protocols/$protocolId'
+      preLoaderRoute: typeof GenomicsProtocolsProtocolIdRouteImport
+      parentRoute: typeof GenomicsProtocolsRoute
+    }
+    '/genomics/cases/$caseId': {
+      id: '/genomics/cases/$caseId'
+      path: '/$caseId'
+      fullPath: '/genomics/cases/$caseId'
+      preLoaderRoute: typeof GenomicsCasesCaseIdRouteImport
+      parentRoute: typeof GenomicsCasesRoute
+    }
     '/api/update/workspace': {
       id: '/api/update/workspace'
       path: '/api/update/workspace'
@@ -3225,6 +3377,59 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface GenomicsCasesRouteChildren {
+  GenomicsCasesCaseIdRoute: typeof GenomicsCasesCaseIdRoute
+}
+
+const GenomicsCasesRouteChildren: GenomicsCasesRouteChildren = {
+  GenomicsCasesCaseIdRoute: GenomicsCasesCaseIdRoute,
+}
+
+const GenomicsCasesRouteWithChildren = GenomicsCasesRoute._addFileChildren(
+  GenomicsCasesRouteChildren,
+)
+
+interface GenomicsProtocolsRouteChildren {
+  GenomicsProtocolsProtocolIdRoute: typeof GenomicsProtocolsProtocolIdRoute
+}
+
+const GenomicsProtocolsRouteChildren: GenomicsProtocolsRouteChildren = {
+  GenomicsProtocolsProtocolIdRoute: GenomicsProtocolsProtocolIdRoute,
+}
+
+const GenomicsProtocolsRouteWithChildren =
+  GenomicsProtocolsRoute._addFileChildren(GenomicsProtocolsRouteChildren)
+
+interface GenomicsRunsRouteChildren {
+  GenomicsRunsRunIdRoute: typeof GenomicsRunsRunIdRoute
+}
+
+const GenomicsRunsRouteChildren: GenomicsRunsRouteChildren = {
+  GenomicsRunsRunIdRoute: GenomicsRunsRunIdRoute,
+}
+
+const GenomicsRunsRouteWithChildren = GenomicsRunsRoute._addFileChildren(
+  GenomicsRunsRouteChildren,
+)
+
+interface GenomicsRouteChildren {
+  GenomicsCasesRoute: typeof GenomicsCasesRouteWithChildren
+  GenomicsProtocolsRoute: typeof GenomicsProtocolsRouteWithChildren
+  GenomicsRunsRoute: typeof GenomicsRunsRouteWithChildren
+  GenomicsIndexRoute: typeof GenomicsIndexRoute
+}
+
+const GenomicsRouteChildren: GenomicsRouteChildren = {
+  GenomicsCasesRoute: GenomicsCasesRouteWithChildren,
+  GenomicsProtocolsRoute: GenomicsProtocolsRouteWithChildren,
+  GenomicsRunsRoute: GenomicsRunsRouteWithChildren,
+  GenomicsIndexRoute: GenomicsIndexRoute,
+}
+
+const GenomicsRouteWithChildren = GenomicsRoute._addFileChildren(
+  GenomicsRouteChildren,
+)
+
 interface ReserveRouteChildren {
   ReserveConfirmRoute: typeof ReserveConfirmRoute
 }
@@ -3539,6 +3744,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EarlyAccessRoute: EarlyAccessRoute,
   FilesRoute: FilesRoute,
+  GenomicsRoute: GenomicsRouteWithChildren,
   HermesWorldRoute: HermesWorldRoute,
   JobsRoute: JobsRoute,
   McpRoute: McpRoute,
