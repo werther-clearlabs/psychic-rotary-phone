@@ -1,4 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+// Ensure the file watcher is running before the first report is generated.
+import '../../../server/genomics/watcher-init'
 import { requireLocalOrAuth } from '../../../server/auth-middleware'
 import { getCase } from '../../../server/genomics/cases-store'
 import { getProtocol, resolveVariables, renderTemplate } from '../../../server/genomics/protocols-store'
