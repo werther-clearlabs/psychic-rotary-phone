@@ -46,16 +46,31 @@ export const useGenomicsStore = create<GenomicsState>()((set) => ({
   setActiveRun: (r) => set({ activeRun: r }),
   setActiveReport: (r) => set({ activeReport: r }),
   appendRunLog: (runId, line) =>
-    set((s) => ({ runLogs: { ...s.runLogs, [runId]: [...(s.runLogs[runId] ?? []), line] } })),
+    set((s) => ({
+      runLogs: { ...s.runLogs, [runId]: [...(s.runLogs[runId] ?? []), line] },
+    })),
   clearRunLog: (runId) =>
     set((s) => ({ runLogs: { ...s.runLogs, [runId]: [] } })),
   setEditingSection: (key) => set({ editingSection: key }),
   openGenerateModal: (protocolId) =>
-    set({ generateModalOpen: true, generateProtocolId: protocolId ?? null, generateVariableOverrides: {} }),
+    set({
+      generateModalOpen: true,
+      generateProtocolId: protocolId ?? null,
+      generateVariableOverrides: {},
+    }),
   closeGenerateModal: () =>
-    set({ generateModalOpen: false, generateProtocolId: null, generateVariableOverrides: {} }),
+    set({
+      generateModalOpen: false,
+      generateProtocolId: null,
+      generateVariableOverrides: {},
+    }),
   setGenerateProtocolId: (id) => set({ generateProtocolId: id }),
   setVariableOverride: (name, value) =>
-    set((s) => ({ generateVariableOverrides: { ...s.generateVariableOverrides, [name]: value } })),
+    set((s) => ({
+      generateVariableOverrides: {
+        ...s.generateVariableOverrides,
+        [name]: value,
+      },
+    })),
   resetVariableOverrides: () => set({ generateVariableOverrides: {} }),
 }))

@@ -11,7 +11,9 @@ async function fetchCases(): Promise<Case[]> {
 
 async function createCase(body: Partial<Case>): Promise<Case> {
   const res = await fetch('/api/genomics/cases', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error('Failed to create case')
   return ((await res.json()) as { case: Case }).case
@@ -24,59 +26,133 @@ function StatusBadge({ status }: { status: string }) {
 export function CaseListScreen() {
   const navigate = useNavigate()
   const qc = useQueryClient()
-  const { data: cases = [], isLoading } = useQuery({ queryKey: ['genomics', 'cases'], queryFn: fetchCases })
+  const { data: cases = [], isLoading } = useQuery({
+    queryKey: ['genomics', 'cases'],
+    queryFn: fetchCases,
+  })
   const [filter, setFilter] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ patient_name: '', patient_id: '', diagnosis: '', stage: '', status: 'active' as const })
+  const [form, setForm] = useState({
+    patient_name: '',
+    patient_id: '',
+    diagnosis: '',
+    stage: '',
+    status: 'active' as const,
+  })
 
   const mutation = useMutation({
     mutationFn: createCase,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['genomics', 'cases'] }); setShowForm(false) },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['genomics', 'cases'] })
+      setShowForm(false)
+    },
   })
 
-  const filtered = cases.filter((c) =>
-    !filter || (c.patient_name ?? '').toLowerCase().includes(filter.toLowerCase()) ||
-    (c.diagnosis ?? '').toLowerCase().includes(filter.toLowerCase())
+  const filtered = cases.filter(
+    (c) =>
+      !filter ||
+      (c.patient_name ?? '').toLowerCase().includes(filter.toLowerCase()) ||
+      (c.diagnosis ?? '').toLowerCase().includes(filter.toLowerCase()),
   )
 
   return (
     <div>
       <div className="cl-title-bar">
         <h1>Cases</h1>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--cl-space-2)' }}>
+        <div
+          style={{
+            marginLeft: 'auto',
+            display: 'flex',
+            gap: 'var(--cl-space-2)',
+          }}
+        >
           <input
             placeholder="Search…"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            style={{ border: '1px solid var(--gray-400)', borderRadius: 'var(--cl-radius-sm)', padding: '4px 10px', fontSize: 12, width: 200 }}
+            style={{
+              border: '1px solid var(--gray-400)',
+              borderRadius: 'var(--cl-radius-sm)',
+              padding: '4px 10px',
+              fontSize: 12,
+              width: 200,
+            }}
           />
-          <button className="cl-btn cl-btn-primary cl-btn-sm" onClick={() => setShowForm(true)}>
+          <button
+            className="cl-btn cl-btn-primary cl-btn-sm"
+            onClick={() => setShowForm(true)}
+          >
             + New Case
           </button>
         </div>
       </div>
 
       {showForm && (
-        <div style={{ background: 'var(--white)', borderBottom: '1px solid var(--gray-200)', padding: 'var(--cl-space-4) var(--cl-space-6)', display: 'flex', gap: 'var(--cl-space-3)', alignItems: 'flex-end' }}>
-          {([
-            { key: 'patient_name', label: 'Patient Name' },
-            { key: 'patient_id', label: 'Patient ID' },
-            { key: 'diagnosis', label: 'Diagnosis' },
-            { key: 'stage', label: 'Stage' },
-          ] as const).map(({ key, label }) => (
-            <label key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11 }}>
-              <span style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.44px', color: 'var(--gray-700)' }}>{label}</span>
+        <div
+          style={{
+            background: 'var(--white)',
+            borderBottom: '1px solid var(--gray-200)',
+            padding: 'var(--cl-space-4) var(--cl-space-6)',
+            display: 'flex',
+            gap: 'var(--cl-space-3)',
+            alignItems: 'flex-end',
+          }}
+        >
+          {(
+            [
+              { key: 'patient_name', label: 'Patient Name' },
+              { key: 'patient_id', label: 'Patient ID' },
+              { key: 'diagnosis', label: 'Diagnosis' },
+              { key: 'stage', label: 'Stage' },
+            ] as const
+          ).map(({ key, label }) => (
+            <label
+              key={key}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                fontSize: 11,
+              }}
+            >
+              <span
+                style={{
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.44px',
+                  color: 'var(--gray-700)',
+                }}
+              >
+                {label}
+              </span>
               <input
                 value={form[key]}
-                onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                style={{ border: '1px solid var(--gray-400)', borderRadius: 'var(--cl-radius-sm)', padding: '4px 8px', fontSize: 12, width: 140 }}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, [key]: e.target.value }))
+                }
+                style={{
+                  border: '1px solid var(--gray-400)',
+                  borderRadius: 'var(--cl-radius-sm)',
+                  padding: '4px 8px',
+                  fontSize: 12,
+                  width: 140,
+                }}
               />
             </label>
           ))}
-          <button className="cl-btn cl-btn-primary cl-btn-sm" onClick={() => mutation.mutate(form)} disabled={mutation.isPending}>
+          <button
+            className="cl-btn cl-btn-primary cl-btn-sm"
+            onClick={() => mutation.mutate(form)}
+            disabled={mutation.isPending}
+          >
             {mutation.isPending ? 'Saving…' : 'Create'}
           </button>
-          <button className="cl-btn cl-btn-tertiary cl-btn-sm" onClick={() => setShowForm(false)}>Cancel</button>
+          <button
+            className="cl-btn cl-btn-tertiary cl-btn-sm"
+            onClick={() => setShowForm(false)}
+          >
+            Cancel
+          </button>
         </div>
       )}
 
@@ -85,22 +161,58 @@ export function CaseListScreen() {
           <table className="cl-table">
             <thead>
               <tr>
-                <th>Patient</th><th>Patient ID</th><th>Diagnosis</th><th>Stage</th>
-                <th>Status</th><th>Created</th>
+                <th>Patient</th>
+                <th>Patient ID</th>
+                <th>Diagnosis</th>
+                <th>Stage</th>
+                <th>Status</th>
+                <th>Created</th>
               </tr>
             </thead>
             <tbody>
-              {isLoading && <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--gray-500)' }}>Loading…</td></tr>}
+              {isLoading && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{ textAlign: 'center', color: 'var(--gray-500)' }}
+                  >
+                    Loading…
+                  </td>
+                </tr>
+              )}
               {!isLoading && filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--gray-500)', padding: 32 }}>No cases found</td></tr>
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{
+                      textAlign: 'center',
+                      color: 'var(--gray-500)',
+                      padding: 32,
+                    }}
+                  >
+                    No cases found
+                  </td>
+                </tr>
               )}
               {filtered.map((c) => (
-                <tr key={c.id} onClick={() => navigate({ to: '/genomics/cases/$caseId', params: { caseId: c.id } })}>
+                <tr
+                  key={c.id}
+                  onClick={() =>
+                    navigate({
+                      to: '/genomics/cases/$caseId',
+                      params: { caseId: c.id },
+                    })
+                  }
+                >
                   <td style={{ fontWeight: 700 }}>{c.patient_name ?? '—'}</td>
-                  <td style={{ color: 'var(--gray-700)' }}>{c.patient_id ?? '—'}</td>
+                  <td style={{ color: 'var(--gray-700)' }}>
+                    {c.patient_id ?? '—'}
+                  </td>
                   <td>{c.diagnosis ?? '—'}</td>
                   <td style={{ color: 'var(--gray-700)' }}>{c.stage ?? '—'}</td>
-                  <td><StatusBadge status={c.status} /></td>
+                  <td>
+                    <StatusBadge status={c.status} />
+                  </td>
                   <td style={{ color: 'var(--gray-600)', fontSize: 11 }}>
                     {new Date(c.created_at).toLocaleDateString()}
                   </td>
