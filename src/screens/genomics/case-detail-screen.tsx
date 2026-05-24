@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Case, CaseSample, Report } from '../../server/genomics/types'
 import { useGenomicsStore } from '../../stores/genomics-store'
 import { GenerateReportModal } from './components/generate-report-modal'
@@ -453,6 +453,10 @@ function HistoryTab({ report }: { report: Report | null }) {
 
 function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; report: Report | null }) {
   const { generateModalOpen, openGenerateModal, closeGenerateModal } = useGenomicsStore()
+
+  useEffect(() => {
+    return () => closeGenerateModal()
+  }, [closeGenerateModal])
   const qc = useQueryClient()
 
   if (!report) {
