@@ -1,5 +1,5 @@
 // src/screens/genomics/components/generate-report-modal.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGenomicsStore } from '../../../stores/genomics-store'
 import type { Protocol, ProtocolVariable } from '../../../server/genomics/types'
@@ -64,7 +64,7 @@ export function GenerateReportModal({ caseId, assayType, onClose, onDispatched }
   const selectedProtocol = protocols.find((p) => p.id === generateProtocolId) ?? null
 
   const previewQuery = useQuery({
-    queryKey: ['genomics', 'protocol-preview', generateProtocolId, caseId, generateVariableOverrides],
+    queryKey: ['genomics', 'protocol-preview', generateProtocolId, caseId],
     queryFn: () =>
       selectedProtocol
         ? previewProtocol(selectedProtocol.id, caseId, generateVariableOverrides)
@@ -80,6 +80,13 @@ export function GenerateReportModal({ caseId, assayType, onClose, onDispatched }
       onClose()
     },
   })
+
+  useEffect(() => {
+    if (step === 3 && selectedProtocol) {
+      void previewQuery.refetch()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   const stepLabel = (n: number) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, opacity: step === n ? 1 : 0.4 }}>
@@ -130,13 +137,19 @@ export function GenerateReportModal({ caseId, assayType, onClose, onDispatched }
               onSelect={setGenerateProtocolId}
             />
           )}
-          {step === 2 && selectedProtocol && (
-            <Step2Variables
-              protocol={selectedProtocol}
-              resolvedVars={previewQuery.data?.vars ?? {}}
-              overrides={generateVariableOverrides}
-              onOverride={setVariableOverride}
-            />
+          {step === 2 && (
+            selectedProtocol ? (
+              <Step2Variables
+                protocol={selectedProtocol}
+                resolvedVars={previewQuery.data?.vars ?? {}}
+                overrides={generateVariableOverrides}
+                onOverride={setVariableOverride}
+              />
+            ) : (
+              <p style={{ color: 'var(--color-red-500)', fontSize: 13 }}>
+                Protocol not found. Go back and reselect.
+              </p>
+            )
           )}
           {step === 3 && (
             <Step3Confirm
