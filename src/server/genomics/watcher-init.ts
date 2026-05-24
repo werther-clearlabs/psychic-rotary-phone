@@ -10,17 +10,22 @@ let started = false
 if (watchPath && !started) {
   started = true
   startReportWatcher(watchPath, (filePath, parsed) => {
-    // Match file to a case by looking for a case_id embedded in the filename.
-    // Convention: agent writes files as {case_id}-report.md or {case_id}.md
-    const filename = filePath.split('/').pop() ?? ''
-    const cases = listCases()
-    const matchedCase = cases.find((c) => filename.includes(c.id))
-    if (!matchedCase) {
-      console.warn('[genomics watcher] could not match report file to a case:', filename)
-      return
+    try {
+      // Match file to a case by looking for a case_id embedded in the filename.
+      // Convention: agent writes files as {case_id}-report.md or {case_id}.md
+      const filename = filePath.split('/').pop() ?? ''
+      const stem = filename.replace(/\.md$/, '')
+      const cases = listCases()
+      const matchedCase = cases.find((c) => stem === c.id || stem.startsWith(`${c.id}-`))
+      if (!matchedCase) {
+        console.warn('[genomics watcher] could not match report file to a case:', filename)
+        return
+      }
+      upsertReportFromFile(undefined, matchedCase.id, filePath, parsed.sections, parsed.figures)
+      console.log(`[genomics watcher] imported report for case ${matchedCase.id} from ${filePath}`)
+    } catch (err) {
+      console.error('[genomics watcher] error processing report file:', filePath, err)
     }
-    upsertReportFromFile(undefined, matchedCase.id, filePath, parsed.sections, parsed.figures)
-    console.log(`[genomics watcher] imported report for case ${matchedCase.id} from ${filePath}`)
   })
   console.log(`[genomics watcher] watching ${watchPath} for markdown reports`)
 }
