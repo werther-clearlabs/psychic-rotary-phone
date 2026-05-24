@@ -62,6 +62,9 @@ export function ReportCanvas({ report, caseId }: Props) {
   const [signerName, setSignerName] = useState('')
   const [showSignDialog, setShowSignDialog] = useState(false)
   const { editingSection, setEditingSection } = useGenomicsStore()
+  useEffect(() => {
+    return () => setEditingSection(null)
+  }, [caseId, setEditingSection])
   const qc = useQueryClient()
   const signed = report.status === 'signed'
 

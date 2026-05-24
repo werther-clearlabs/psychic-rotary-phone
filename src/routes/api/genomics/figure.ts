@@ -21,12 +21,16 @@ export const Route = createFileRoute('/api/genomics/figure')({
 
         // Normalize first to collapse any `..` segments, then anchor against the NAS base.
         const absPath = resolvePath(rawPath)
-        const nasBase = process.env.GENOMICS_NAS_BASE ?? ''
-        if (nasBase) {
-          const baseWithSlash = nasBase.endsWith('/') ? nasBase : `${nasBase}/`
-          if (!absPath.startsWith(baseWithSlash) && absPath !== nasBase) {
-            return Response.json({ error: 'Forbidden' }, { status: 403 })
-          }
+        // Anchor figure paths to GENOMICS_NAS_BASE, falling back to GENOMICS_REPORT_WATCH_PATH
+        // so the route is never an unrestricted filesystem read.
+        const rawBase = process.env.GENOMICS_NAS_BASE ?? process.env.GENOMICS_REPORT_WATCH_PATH ?? ''
+        if (!rawBase) {
+          return Response.json({ error: 'Figure serving not configured' }, { status: 503 })
+        }
+        const nasBase = resolvePath(rawBase)
+        const baseWithSlash = nasBase.endsWith('/') ? nasBase : `${nasBase}/`
+        if (!absPath.startsWith(baseWithSlash) && absPath !== nasBase) {
+          return Response.json({ error: 'Forbidden' }, { status: 403 })
         }
 
         if (!existsSync(absPath)) {
