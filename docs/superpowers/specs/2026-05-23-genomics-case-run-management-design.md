@@ -7,12 +7,13 @@
 
 ## Context
 
-Hermes Workspace is a generic AI chat frontend connected to a Hermes Agent backend running on a local Parabricks GPU server. The agent has specialized skills for controlling Parabricks pipelines (`pbrun`), VCF interpretation, variant annotation (OncoKB/CIViC), and generating structured 12-section Molecular Pathology & Precision Oncology reports (as markdown + figures, optionally compiled to PDF via LaTeX).
+Hermes Workspace is a generic AI chat frontend connected to a Hermes Agent backend running on a local Parabricks GPU server. The agent has 100+ loaded skills (e.g. from ClawBio) covering VCF interpretation, OncoKB/CIViC lookup, clinical trial matching, and structured 12-section Molecular Pathology & Precision Oncology report generation. Through experimentation, the team has identified which skill combinations produce reliable reports for each assay type.
 
-The goal is to extend hermes-workspace with two new domain entities:
+The goal is to extend hermes-workspace with four new domain entities:
 
 - **Case** — patient umbrella entity holding sample paths, EHR info, linked Runs, and clinical reports
 - **Run** — secondary analysis job entity tracking Parabricks pipeline execution stage by stage
+- **Protocol** — versioned, assay-specific recipe that captures the known-working AI skill sequence and prompt template for reproducible report generation. Analogous to the liquid-handling Protocols in the existing Clear Labs product — same concept, different domain.
 
 Two user groups: **bioinformatics team** (technical, pipeline operators) and **clinical users** (oncologists, genetic counselors reviewing and signing reports).
 
@@ -145,9 +146,26 @@ case_samples (
   added_at INTEGER
 )
 
+protocols (
+  id TEXT PRIMARY KEY,
+  name TEXT,                    -- e.g. "WGS Oncology Report"
+  version TEXT,                 -- e.g. "2.1" — bumped when prompt/skills change
+  assay_type TEXT,              -- e.g. "WGS" | "targeted-panel" | "RNA-seq"
+  description TEXT,
+  prompt_template TEXT,         -- template with {{variable}} slots
+  skills TEXT,                  -- JSON array: skill names in invocation order (documentation + UI display)
+  variables TEXT,               -- JSON: [{ name, source, label, editable }]
+                                --   source: "case.vcf_path" | "case.diagnosis" | "manual"
+  is_active INTEGER DEFAULT 1,  -- soft delete / retire old versions
+  created_at INTEGER,
+  updated_at INTEGER
+)
+
 reports (
   id TEXT PRIMARY KEY,
   case_id TEXT REFERENCES cases(id),
+  protocol_id TEXT REFERENCES protocols(id),   -- which Protocol generated this
+  protocol_version TEXT,                        -- snapshot of version at generation time
   version INTEGER DEFAULT 1,
   status TEXT,                  -- 'draft' | 'signed'
   sections TEXT,                -- JSON: { "1": "...", "2": "...", ... }
@@ -178,6 +196,7 @@ All new server-side code lives under `src/server/genomics/`:
 - `cases-store.ts` — CRUD for cases and samples
 - `runs-store.ts` — CRUD for runs and stages
 - `reports-store.ts` — Report read/write, section patching
+- `protocols-store.ts` — Protocol CRUD and template rendering (variable substitution)
 - `report-watcher.ts` — Node.js `fs.watch` on configured report output directory; parses new markdown reports, extracts 12 sections by heading, upserts into `reports` table
 
 ### New API Routes
@@ -194,6 +213,11 @@ GET/POST   /api/genomics/runs
 GET/PUT    /api/genomics/runs/$runId
 GET        /api/genomics/runs/$runId/log             — SSE stream of live pbrun log
 POST       /api/genomics/runs/$runId/link/$caseId
+
+GET/POST   /api/genomics/protocols
+GET/PUT    /api/genomics/protocols/$protocolId
+POST       /api/genomics/protocols/$protocolId/preview  — render template with sample vars
+POST       /api/genomics/cases/$caseId/report/generate  — resolve Protocol vars from Case, dispatch to Hermes
 ```
 
 ---
@@ -209,6 +233,7 @@ CLINICAL
   ⬡ Dashboard      /genomics
   ⬡ Cases          /genomics/cases
   ⬡ Runs           /genomics/runs
+  ⬡ Protocols      /genomics/protocols
 
 WORKSPACE
   ⬡ Chat
@@ -249,6 +274,16 @@ Filterable table: Patient ID, Name, Diagnosis, Status, Last Run, Report Status. 
 
 ### 4. Report & Review Tab
 
+**When no report exists yet — Generate Report flow:**
+
+The tab shows an empty state with a "Generate Report" button. Clicking it opens a modal:
+1. **Protocol selector** — dropdown filtered by assay type matching the Case (e.g. Case is WGS → only WGS protocols shown). Shows name, version, skill count.
+2. **Variable review** — table of variables auto-resolved from the Case (VCF path, sample ID, diagnosis, output path). Editable fields for any `"source": "manual"` variables or overrides.
+3. **Confirm** — renders the prompt template with resolved variables, sends to Hermes gateway via the existing SSE chat pipeline. Report generation progress shown inline (skill events stream in, same `tool.*` event display as the existing chat).
+4. On completion, `report-watcher.ts` detects the written markdown file → canvas populates.
+
+The generated report record stores `protocol_id` + `protocol_version` for full auditability. The History tab shows "Generated with: WGS Oncology Report v2.1 on 2026-05-23."
+
 **Left — Report Canvas:**
 - Section nav pills: §1 Header through §12 Disclaimers
 - Each section renders as a collapsible block with an inline edit button
@@ -264,9 +299,16 @@ Filterable table: Patient ID, Name, Diagnosis, Status, Last Run, Report Status. 
 
 **Technical flow:**
 ```
-Agent skill writes markdown report → NAS path
+User clicks "Generate Report" → selects Protocol → reviews variables
+    ↓
+POST /api/genomics/cases/$caseId/report/generate
+    → protocols-store resolves template: substitutes {{variables}} from Case record
+    → assembled prompt dispatched to Hermes gateway (same SSE path as chat)
+    → agent executes skills in Protocol sequence
+    → agent writes markdown report + figures → NAS output_path
     ↓
 report-watcher.ts detects file → parses 12 sections by ## heading → upserts reports table
+    → report record stores protocol_id + protocol_version
     ↓
 Report & Review tab loads sections from /api/genomics/cases/$id/report
     ↓
@@ -283,7 +325,20 @@ Sign & Finalize → status = 'signed', locked
 Export PDF → Puppeteer renders canvas HTML → downloads PDF
 ```
 
-### 5. Run List (`/genomics/runs`)
+### 5. Protocol Library (`/genomics/protocols`)
+
+Table: Name, Version, Assay Type, Skills (count), Active/Retired, Last Used. "New Protocol" action.
+
+Each row expands or links to a Protocol detail view showing:
+- **Metadata**: name, version, assay type, description
+- **Skill sequence**: ordered list of skill names (e.g. `vcf-interpretation → oncokb-lookup → civic-lookup → trial-matcher → report-writer-12section`)
+- **Prompt template**: the full template text with `{{variable}}` slots highlighted
+- **Variables table**: name, label, auto-source (e.g. `case.vcf_path`), editable override flag
+- **Version history**: list of prior versions with diff summary
+
+Protocol editing is technical-team only. Clinical users see Protocols as read-only choices.
+
+### 6. Run List (`/genomics/runs`)
 
 Table: Run ID, Pipeline, Reference, Status, Created, Linked Case. Filter by status.
 
