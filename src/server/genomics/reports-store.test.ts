@@ -43,4 +43,15 @@ describe('reports-store', () => {
     expect(signed?.signed_by).toBe('dr.smith')
     expect(signed?.signed_at).toBeGreaterThan(0)
   })
+
+  it('refuses to re-sign an already signed report', () => {
+    const c = createCase(testDb, { status: 'active' })
+    const r = createReport(testDb, { case_id: c.id, sections: {}, figures: [] })
+    const first = signReport(testDb, r.id, 'dr.smith')
+    const firstSignedAt = first?.signed_at
+    // small sleep equivalent — just call again
+    const second = signReport(testDb, r.id, 'dr.malicious')
+    expect(second?.signed_by).toBe('dr.smith')
+    expect(second?.signed_at).toBe(firstSignedAt)
+  })
 })

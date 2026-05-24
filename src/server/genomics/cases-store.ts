@@ -3,6 +3,10 @@ import type Database from 'better-sqlite3'
 import { db as defaultDb } from './db'
 import type { Case, CaseSample } from './types'
 
+const UPDATABLE_CASE_FIELDS = new Set<keyof Case>([
+  'patient_id', 'patient_name', 'dob', 'diagnosis', 'stage', 'assay_type', 'status', 'ehr_summary',
+])
+
 type CreateCaseInput = Partial<Omit<Case, 'id' | 'created_at' | 'updated_at'>> &
   Pick<Case, 'status'>
 
@@ -55,7 +59,9 @@ export function updateCase(
   id: string,
   patch: Partial<Omit<Case, 'id' | 'created_at' | 'updated_at'>>,
 ): Case | null {
-  const fields = Object.keys(patch) as (keyof typeof patch)[]
+  const fields = (Object.keys(patch) as (keyof typeof patch)[]).filter(
+    (f) => UPDATABLE_CASE_FIELDS.has(f as keyof Case),
+  )
   if (fields.length === 0) return getCase(db, id)
   const setClauses = fields.map((f) => `${f} = ?`).join(', ')
   const values = fields.map((f) => patch[f] ?? null)

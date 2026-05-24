@@ -39,10 +39,14 @@ export const Route = createFileRoute('/api/genomics/cases/$caseId/report/export-
 
         const html = buildReportHtml(caseRecord ?? {}, report.sections)
         const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] })
-        const page = await browser.newPage()
-        await page.setContent(html, { waitUntil: 'networkidle0' })
-        const pdfBuffer = await page.pdf({ format: 'A4', margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' } })
-        await browser.close()
+        let pdfBuffer: Uint8Array
+        try {
+          const page = await browser.newPage()
+          await page.setContent(html, { waitUntil: 'networkidle0' })
+          pdfBuffer = await page.pdf({ format: 'A4', margin: { top: '20mm', bottom: '20mm', left: '15mm', right: '15mm' } })
+        } finally {
+          await browser.close()
+        }
 
         return new Response(pdfBuffer as BodyInit, {
           headers: {

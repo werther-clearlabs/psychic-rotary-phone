@@ -4,6 +4,10 @@ import type Database from 'better-sqlite3'
 import { db as defaultDb } from './db'
 import type { Protocol, ProtocolVariable } from './types'
 
+const UPDATABLE_PROTOCOL_FIELDS = new Set<string>([
+  'name', 'version', 'assay_type', 'description', 'prompt_template', 'skills', 'variables', 'is_active',
+])
+
 type CreateProtocolInput = Omit<Protocol, 'id' | 'is_active' | 'created_at' | 'updated_at'>
 
 function deserializeProtocol(row: Record<string, unknown>): Protocol {
@@ -49,7 +53,7 @@ export function updateProtocol(
   const serialized: Record<string, unknown> = { ...patch }
   if (patch.skills) serialized.skills = JSON.stringify(patch.skills)
   if (patch.variables) serialized.variables = JSON.stringify(patch.variables)
-  const fields = Object.keys(serialized)
+  const fields = Object.keys(serialized).filter((f) => UPDATABLE_PROTOCOL_FIELDS.has(f))
   if (fields.length === 0) return getProtocol(db, id)
   const setClauses = fields.map((f) => `${f} = ?`).join(', ')
   const values = fields.map((f) => serialized[f] ?? null)

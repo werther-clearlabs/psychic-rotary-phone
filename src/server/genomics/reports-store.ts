@@ -66,6 +66,8 @@ export function signReport(
   reportId: string,
   signedBy: string,
 ): Report | null {
+  const existing = getReport(db, reportId)
+  if (!existing || existing.status === 'signed') return existing
   const now = Date.now()
   db.prepare(
     'UPDATE reports SET status = ?, signed_by = ?, signed_at = ?, updated_at = ? WHERE id = ?'

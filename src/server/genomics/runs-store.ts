@@ -3,6 +3,14 @@ import type Database from 'better-sqlite3'
 import { db as defaultDb } from './db'
 import type { Run, RunStage, RunStatus, StageStatus } from './types'
 
+const UPDATABLE_RUN_FIELDS = new Set<keyof Run>([
+  'name', 'pipeline', 'reference', 'fastq_path', 'output_path', 'status', 'pbrun_command',
+])
+
+const UPDATABLE_STAGE_FIELDS = new Set<keyof RunStage>([
+  'status', 'started_at', 'finished_at', 'log_tail',
+])
+
 type CreateRunInput = Partial<Omit<Run, 'id' | 'created_at' | 'updated_at'>> &
   Pick<Run, 'name' | 'pipeline' | 'status'>
 
@@ -29,7 +37,9 @@ export function updateRun(
   id: string,
   patch: Partial<Omit<Run, 'id' | 'created_at' | 'updated_at'>>,
 ): Run | null {
-  const fields = Object.keys(patch) as (keyof typeof patch)[]
+  const fields = (Object.keys(patch) as (keyof typeof patch)[]).filter(
+    (f) => UPDATABLE_RUN_FIELDS.has(f as keyof Run),
+  )
   if (fields.length === 0) return getRun(db, id)
   const setClauses = fields.map((f) => `${f} = ?`).join(', ')
   const values = fields.map((f) => (patch[f] as unknown) ?? null)
@@ -49,7 +59,9 @@ export function upsertStage(
 ): RunStage {
   const existing = db.prepare('SELECT * FROM run_stages WHERE run_id = ? AND name = ?').get(runId, name) as RunStage | undefined
   if (existing) {
-    const fields = Object.keys(patch) as (keyof typeof patch)[]
+    const fields = (Object.keys(patch) as (keyof typeof patch)[]).filter(
+      (f) => UPDATABLE_STAGE_FIELDS.has(f as keyof RunStage),
+    )
     if (fields.length > 0) {
       const setClauses = fields.map((f) => `${f} = ?`).join(', ')
       const values = fields.map((f) => (patch[f] as unknown) ?? null)

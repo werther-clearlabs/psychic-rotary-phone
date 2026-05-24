@@ -1,6 +1,6 @@
 import { watch } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import { join, extname } from 'node:path'
+import { join, extname, resolve, sep } from 'node:path'
 import type { ReportFigure } from './types'
 
 export interface ParsedReport {
@@ -40,9 +40,12 @@ export function startReportWatcher(
   watchPath: string,
   onReport: (filePath: string, parsed: ParsedReport) => void,
 ): () => void {
+  const resolvedWatchPath = resolve(watchPath)
   const watcher = watch(watchPath, { recursive: false }, async (event, filename) => {
     if (!filename || extname(filename) !== '.md') return
-    const filePath = join(watchPath, filename)
+    const filePath = resolve(join(watchPath, filename))
+    // Path traversal guard: filename from fs.watch may contain path separators
+    if (!filePath.startsWith(resolvedWatchPath + sep) && filePath !== resolvedWatchPath) return
     try {
       const content = await readFile(filePath, 'utf8')
       const parsed = parseMarkdownReport(content)
