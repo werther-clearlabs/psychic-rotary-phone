@@ -182,7 +182,7 @@ function NavItem({
     'w-full h-auto min-h-11 gap-2.5 py-2 md:min-h-0',
     isCollapsed ? 'justify-center px-0' : 'justify-start px-3',
     item.active
-      ? 'bg-accent-500/10 text-accent-500 hover:bg-accent-50 dark:hover:bg-accent-900/300/15'
+      ? 'text-accent-600 font-semibold'
       : 'text-primary-900 hover:bg-primary-200 dark:hover:bg-primary-800',
   )
 
@@ -246,6 +246,13 @@ function NavItem({
     onSelectSession?.()
   }
 
+  const activeStyle: React.CSSProperties | undefined = item.active
+    ? {
+        backgroundColor:
+          'color-mix(in srgb, var(--color-accent-500) 18%, transparent)',
+      }
+    : undefined
+
   if (item.kind === 'link') {
     if (isCollapsed) {
       return (
@@ -259,6 +266,7 @@ function NavItem({
                   hash={item.hash}
                   onClick={handleSelect}
                   className={cls}
+                  style={activeStyle}
                   data-tour={item.dataTour}
                 >
                   {iconEl}
@@ -277,6 +285,7 @@ function NavItem({
         hash={item.hash}
         onClick={handleSelect}
         className={cls}
+        style={activeStyle}
         data-tour={item.dataTour}
       >
         {iconEl}
@@ -300,6 +309,7 @@ function NavItem({
                   handleSelect()
                 }}
                 className={cls}
+                style={activeStyle}
                 data-tour={item.dataTour}
               >
                 {iconEl}
@@ -322,6 +332,7 @@ function NavItem({
         handleSelect()
       }}
       className={cls}
+      style={activeStyle}
       data-tour={item.dataTour}
     >
       {iconEl}
