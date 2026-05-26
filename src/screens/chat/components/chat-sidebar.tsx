@@ -837,13 +837,13 @@ function ChatSidebarComponent({
   ]
 
   const mainItems: Array<NavItemDef> = [
-    {
-      kind: 'link',
-      to: '/dashboard',
-      icon: DashboardSquare01Icon,
-      label: t('nav.dashboard'),
-      active: isDashboardActive,
-    },
+    // {
+    //   kind: 'link',
+    //   to: '/dashboard',
+    //   icon: DashboardSquare01Icon,
+    //   label: t('nav.dashboard'),
+    //   active: isDashboardActive,
+    // },
     {
       kind: 'link',
       to: '/chat',
@@ -866,51 +866,51 @@ function ChatSidebarComponent({
       label: t('nav.terminal'),
       active: isTerminalActive,
     },
-    {
-      kind: 'link',
-      to: '/jobs',
-      icon: Clock01Icon,
-      label: t('nav.jobs'),
-      active: isJobsActive,
-    },
-    {
-      kind: 'link',
-      to: '/tasks',
-      icon: CheckListIcon,
-      label: 'Tasks',
-      active: isTasksActive,
-    },
-    {
-      kind: 'link',
-      to: '/conductor',
-      icon: Rocket01Icon,
-      label: 'Conductor',
-      active: isConductorActive,
-    },
-    {
-      kind: 'link',
-      to: '/operations',
-      icon: UserMultipleIcon,
-      label: 'Operations',
-      active: isOperationsActive,
-    },
-    {
-      kind: 'link',
-      to: '/swarm',
-      icon: UserGroupIcon,
-      label: 'Swarm',
-      active: isSwarmActive,
-    },
+    // {
+    //   kind: 'link',
+    //   to: '/jobs',
+    //   icon: Clock01Icon,
+    //   label: t('nav.jobs'),
+    //   active: isJobsActive,
+    // },
+    // {
+    //   kind: 'link',
+    //   to: '/tasks',
+    //   icon: CheckListIcon,
+    //   label: 'Tasks',
+    //   active: isTasksActive,
+    // },
+    // {
+    //   kind: 'link',
+    //   to: '/conductor',
+    //   icon: Rocket01Icon,
+    //   label: 'Conductor',
+    //   active: isConductorActive,
+    // },
+    // {
+    //   kind: 'link',
+    //   to: '/operations',
+    //   icon: UserMultipleIcon,
+    //   label: 'Operations',
+    //   active: isOperationsActive,
+    // },
+    // {
+    //   kind: 'link',
+    //   to: '/swarm',
+    //   icon: UserGroupIcon,
+    //   label: 'Swarm',
+    //   active: isSwarmActive,
+    // },
   ]
 
   const knowledgeItems: Array<NavItemDef> = [
-    {
-      kind: 'link',
-      to: '/memory',
-      icon: BrainIcon,
-      label: t('nav.memory'),
-      active: isMemoryActive,
-    },
+    // {
+    //   kind: 'link',
+    //   to: '/memory',
+    //   icon: BrainIcon,
+    //   label: t('nav.memory'),
+    //   active: isMemoryActive,
+    // },
     {
       kind: 'link',
       to: '/skills',
@@ -919,20 +919,20 @@ function ChatSidebarComponent({
       active: isSkillsActive,
       dataTour: 'skills',
     },
-    {
-      kind: 'link',
-      to: '/mcp',
-      icon: McpServerIcon,
-      label: 'MCP',
-      active: isMcpActive,
-    },
-    {
-      kind: 'link',
-      to: '/profiles',
-      icon: UserMultipleIcon,
-      label: t('nav.profiles'),
-      active: pathname === '/profiles',
-    },
+    // {
+    //   kind: 'link',
+    //   to: '/mcp',
+    //   icon: McpServerIcon,
+    //   label: 'MCP',
+    //   active: isMcpActive,
+    // },
+    // {
+    //   kind: 'link',
+    //   to: '/profiles',
+    //   icon: UserMultipleIcon,
+    //   label: t('nav.profiles'),
+    //   active: pathname === '/profiles',
+    // },
   ]
 
   const systemItems: Array<NavItemDef> = []
@@ -992,15 +992,15 @@ function ChatSidebarComponent({
                 )}
               >
                 <img
-                  src="/claude-avatar.webp"
-                  alt="Hermes Agent"
+                  src="/clearlabs-logo.svg"
+                  alt="Clear Labs"
                   className="size-6 rounded-lg"
                 />
                 <span
                   className="text-sm font-semibold tracking-tight"
                   style={{ color: 'var(--theme-text)' }}
                 >
-                  Hermes Workspace
+                  Clear Dx Node
                 </span>
               </Link>
             </motion.div>
@@ -1044,7 +1044,7 @@ function ChatSidebarComponent({
       </motion.div>
 
       {/* ── Search (ChatGPT-style, above sections) ─────────────────── */}
-      <div className="px-2 pb-1">
+      {/* <div className="px-2 pb-1">
         <motion.div
           layout
           transition={{ layout: transition }}
@@ -1057,10 +1057,10 @@ function ChatSidebarComponent({
             onSelectSession={onSelectSession}
           />
         </motion.div>
-      </div>
+      </div> */}
 
       {/* ── New Session button ──────────────────────────────────────── */}
-      {!isVisuallyCollapsed && (
+      {/* {!isVisuallyCollapsed && (
         <div className="px-2 pb-1">
           <Link
             to="/chat/$sessionKey"
@@ -1085,11 +1085,11 @@ function ChatSidebarComponent({
             <span>New Session</span>
           </Link>
         </div>
-      )}
+      )} */}
 
       {/* ── HermesWorld featured link (gold castle, NEW badge) ────── */}
       {/* Hide when VITE_HERMESWORLD_ENABLED is explicitly '0' */}
-      {!isVisuallyCollapsed &&
+      {/* {!isVisuallyCollapsed &&
         (import.meta as any).env?.VITE_HERMESWORLD_ENABLED !== '0' && (
           <div className="px-2 pb-2">
             <Link
@@ -1125,7 +1125,7 @@ function ChatSidebarComponent({
               </span>
             </Link>
           </div>
-        )}
+        )} */}
 
       {/* ── Scrollable body: nav + sessions ─────────────────────────── */}
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin flex flex-col">

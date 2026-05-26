@@ -126,12 +126,11 @@ export const Route = createRootRoute({
           'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual',
       },
       {
-        title: 'Hermes Workspace',
+        title: 'Clear Dx Node',
       },
       {
         name: 'description',
-        content:
-          'Hermes Agent workspace for chat, tools, files, memory, and jobs.',
+        content: 'Clear Dx Node',
       },
       {
         property: 'og:image',
@@ -171,7 +170,7 @@ export const Route = createRootRoute({
       {
         rel: 'icon',
         type: 'image/png',
-        href: '/claude-avatar.png',
+        href: '/favicon.ico',
       },
       // PWA manifest and icons
       {
@@ -221,7 +220,10 @@ export function wrapInlineScript(source: string): string {
 }
 
 type ServiceWorkerLike = {
-  register: (scriptURL: string, options?: RegistrationOptions) => Promise<unknown>
+  register: (
+    scriptURL: string,
+    options?: RegistrationOptions,
+  ) => Promise<unknown>
 }
 
 type CachesLike = {
@@ -252,13 +254,18 @@ export async function registerAppServiceWorker({
 
 function RootLayout() {
   const { settings } = useSettings()
-  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
   const isHermesWorldLandingRoute =
     pathname === '/hermes-world' ||
     pathname.startsWith('/hermes-world/') ||
     pathname === '/world' ||
     pathname.startsWith('/world/')
-  const isGameSurfaceRoute = isHermesWorldLandingRoute || pathname === '/playground' || pathname.startsWith('/playground/')
+  const isGameSurfaceRoute =
+    isHermesWorldLandingRoute ||
+    pathname === '/playground' ||
+    pathname.startsWith('/playground/')
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(
     null,
   )
@@ -371,10 +378,13 @@ function RootLayout() {
           </WorkspaceShell>
           {!isHermesWorldLandingRoute ? <SearchModal /> : null}
           {/* Keep UsageMeter mounted so search-modal OPEN_USAGE still works even when the pill is hidden by default. */}
-          {!isGameSurfaceRoute ? <UsageMeter visible={settings.showUsageMeter} /> : null}
+          {!isGameSurfaceRoute ? (
+            <UsageMeter visible={settings.showUsageMeter} />
+          ) : null}
           {!isHermesWorldLandingRoute ? <KeyboardShortcutsModal /> : null}
           {!isHermesWorldLandingRoute ? <UpdateCenterNotifier /> : null}
-          {rootSurfaceState.showPostOnboardingOverlays && !isGameSurfaceRoute ? (
+          {rootSurfaceState.showPostOnboardingOverlays &&
+          !isGameSurfaceRoute ? (
             <>
               <MobilePromptTrigger />
               <OnboardingTour />
@@ -416,7 +426,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
-        <div id="splash-screen" aria-hidden="true" style={{ display: 'none' }} />
+        <div
+          id="splash-screen"
+          aria-hidden="true"
+          style={{ display: 'none' }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: wrapInlineScript(`
