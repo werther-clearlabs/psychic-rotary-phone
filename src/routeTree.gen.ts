@@ -158,6 +158,7 @@ import { Route as ApiHermesworldReservationsRouteImport } from './routes/api/her
 import { Route as ApiHermesTasksTaskIdRouteImport } from './routes/api/hermes-tasks.$taskId'
 import { Route as ApiGenomicsRunsRouteImport } from './routes/api/genomics/runs'
 import { Route as ApiGenomicsProtocolsRouteImport } from './routes/api/genomics/protocols'
+import { Route as ApiGenomicsGpuRouteImport } from './routes/api/genomics/gpu'
 import { Route as ApiGenomicsFigureRouteImport } from './routes/api/genomics/figure'
 import { Route as ApiGenomicsCasesRouteImport } from './routes/api/genomics/cases'
 import { Route as ApiDashboardOverviewRouteImport } from './routes/api/dashboard/overview'
@@ -928,6 +929,11 @@ const ApiGenomicsProtocolsRoute = ApiGenomicsProtocolsRouteImport.update({
   path: '/api/genomics/protocols',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenomicsGpuRoute = ApiGenomicsGpuRouteImport.update({
+  id: '/api/genomics/gpu',
+  path: '/api/genomics/gpu',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGenomicsFigureRoute = ApiGenomicsFigureRouteImport.update({
   id: '/api/genomics/figure',
   path: '/api/genomics/figure',
@@ -1156,6 +1162,7 @@ export interface FileRoutesByFullPath {
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/genomics/cases': typeof ApiGenomicsCasesRouteWithChildren
   '/api/genomics/figure': typeof ApiGenomicsFigureRoute
+  '/api/genomics/gpu': typeof ApiGenomicsGpuRoute
   '/api/genomics/protocols': typeof ApiGenomicsProtocolsRouteWithChildren
   '/api/genomics/runs': typeof ApiGenomicsRunsRouteWithChildren
   '/api/hermes-tasks/$taskId': typeof ApiHermesTasksTaskIdRoute
@@ -1326,6 +1333,7 @@ export interface FileRoutesByTo {
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/genomics/cases': typeof ApiGenomicsCasesRouteWithChildren
   '/api/genomics/figure': typeof ApiGenomicsFigureRoute
+  '/api/genomics/gpu': typeof ApiGenomicsGpuRoute
   '/api/genomics/protocols': typeof ApiGenomicsProtocolsRouteWithChildren
   '/api/genomics/runs': typeof ApiGenomicsRunsRouteWithChildren
   '/api/hermes-tasks/$taskId': typeof ApiHermesTasksTaskIdRoute
@@ -1499,6 +1507,7 @@ export interface FileRoutesById {
   '/api/dashboard/overview': typeof ApiDashboardOverviewRoute
   '/api/genomics/cases': typeof ApiGenomicsCasesRouteWithChildren
   '/api/genomics/figure': typeof ApiGenomicsFigureRoute
+  '/api/genomics/gpu': typeof ApiGenomicsGpuRoute
   '/api/genomics/protocols': typeof ApiGenomicsProtocolsRouteWithChildren
   '/api/genomics/runs': typeof ApiGenomicsRunsRouteWithChildren
   '/api/hermes-tasks/$taskId': typeof ApiHermesTasksTaskIdRoute
@@ -1673,6 +1682,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/overview'
     | '/api/genomics/cases'
     | '/api/genomics/figure'
+    | '/api/genomics/gpu'
     | '/api/genomics/protocols'
     | '/api/genomics/runs'
     | '/api/hermes-tasks/$taskId'
@@ -1843,6 +1853,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/overview'
     | '/api/genomics/cases'
     | '/api/genomics/figure'
+    | '/api/genomics/gpu'
     | '/api/genomics/protocols'
     | '/api/genomics/runs'
     | '/api/hermes-tasks/$taskId'
@@ -2015,6 +2026,7 @@ export interface FileRouteTypes {
     | '/api/dashboard/overview'
     | '/api/genomics/cases'
     | '/api/genomics/figure'
+    | '/api/genomics/gpu'
     | '/api/genomics/protocols'
     | '/api/genomics/runs'
     | '/api/hermes-tasks/$taskId'
@@ -2178,6 +2190,7 @@ export interface RootRouteChildren {
   ApiDashboardOverviewRoute: typeof ApiDashboardOverviewRoute
   ApiGenomicsCasesRoute: typeof ApiGenomicsCasesRouteWithChildren
   ApiGenomicsFigureRoute: typeof ApiGenomicsFigureRoute
+  ApiGenomicsGpuRoute: typeof ApiGenomicsGpuRoute
   ApiGenomicsProtocolsRoute: typeof ApiGenomicsProtocolsRouteWithChildren
   ApiGenomicsRunsRoute: typeof ApiGenomicsRunsRouteWithChildren
   ApiHermesworldReservationsRoute: typeof ApiHermesworldReservationsRouteWithChildren
@@ -3247,6 +3260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGenomicsProtocolsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/genomics/gpu': {
+      id: '/api/genomics/gpu'
+      path: '/api/genomics/gpu'
+      fullPath: '/api/genomics/gpu'
+      preLoaderRoute: typeof ApiGenomicsGpuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/genomics/figure': {
       id: '/api/genomics/figure'
       path: '/api/genomics/figure'
@@ -3830,6 +3850,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDashboardOverviewRoute: ApiDashboardOverviewRoute,
   ApiGenomicsCasesRoute: ApiGenomicsCasesRouteWithChildren,
   ApiGenomicsFigureRoute: ApiGenomicsFigureRoute,
+  ApiGenomicsGpuRoute: ApiGenomicsGpuRoute,
   ApiGenomicsProtocolsRoute: ApiGenomicsProtocolsRouteWithChildren,
   ApiGenomicsRunsRoute: ApiGenomicsRunsRouteWithChildren,
   ApiHermesworldReservationsRoute: ApiHermesworldReservationsRouteWithChildren,
