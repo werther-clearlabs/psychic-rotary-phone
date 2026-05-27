@@ -179,7 +179,7 @@ export function ReportChatPanel({ caseId, caseData, report }: Props) {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {visibleMessages.length === 0 && (
           <p style={{ color: 'var(--gray-400)', fontSize: 12, fontStyle: 'italic', textAlign: 'center', marginTop: 24 }}>
             Loading case context…

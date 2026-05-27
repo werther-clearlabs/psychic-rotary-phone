@@ -338,3 +338,89 @@
   border: 1px solid var(--color-red-600);
   color: var(--color-red-600);
 }
+
+/* Markdown body — used in report canvas read view */
+.cl-md {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--gray-900);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.cl-md > *:first-child { margin-top: 0; }
+.cl-md > *:last-child { margin-bottom: 0; }
+.cl-md h1, .cl-md h2, .cl-md h3, .cl-md h4, .cl-md h5, .cl-md h6 {
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 18px 0 8px;
+  line-height: 1.3;
+}
+.cl-md h1 { font-size: 18px; }
+.cl-md h2 { font-size: 16px; }
+.cl-md h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray-700); }
+.cl-md h4, .cl-md h5, .cl-md h6 { font-size: 13px; }
+.cl-md p { margin: 0 0 10px; }
+.cl-md ul, .cl-md ol { margin: 0 0 10px; padding-left: 22px; }
+.cl-md li { margin: 2px 0; }
+.cl-md li > p { margin: 0; }
+.cl-md strong { font-weight: 700; color: var(--gray-900); }
+.cl-md em { font-style: italic; }
+.cl-md a { color: var(--brand-600); text-decoration: underline; }
+.cl-md a:hover { color: var(--brand-700); }
+.cl-md code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  background: var(--gray-100);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--gray-900);
+}
+.cl-md pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  background: var(--gray-100);
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--gray-200);
+  overflow-x: auto;
+  margin: 0 0 10px;
+}
+.cl-md pre code { background: transparent; padding: 0; font-size: 12px; }
+.cl-md blockquote {
+  margin: 0 0 10px;
+  padding: 4px 12px;
+  border-left: 3px solid var(--brand-300);
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+.cl-md hr {
+  border: 0;
+  border-top: 1px solid var(--gray-200);
+  margin: 16px 0;
+}
+.cl-md table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+.cl-md th, .cl-md td {
+  border: 1px solid var(--gray-200);
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.cl-md th {
+  background: var(--gray-100);
+  font-weight: 700;
+  color: var(--gray-800);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.cl-md tbody tr:nth-child(even) td { background: var(--gray-50); }
+.cl-md img { max-width: 100%; height: auto; display: block; margin: 8px 0; }

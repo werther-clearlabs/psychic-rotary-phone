@@ -5,6 +5,7 @@
 **Branch:** `feat/genomics-phase1` (Phase 3 commits 294904f9..254b343f).
 
 **Prereqs:**
+
 - Node ≥22, pnpm ≥10.24
 - Local dev DB (will be created/migrated automatically on first run)
 - Hermes agent gateway running on `127.0.0.1:8642` (for chat panel + report generation dispatch — chat will surface "Error: could not reach Hermes" if missing)
@@ -81,7 +82,7 @@
 - [ ] **Step 3 — CONFIRM**
   - [ ] Click `Next →`
   - [ ] Network tab shows a `POST /api/genomics/protocols/$id/preview` fire (the refetch-on-step-3 effect)
-  - [ ] Rendered prompt preview shows substituted values: patient name "Jane Doe", diagnosis "Melanoma", VCF Path = whatever you typed
+  - [ ] Rendered prompt preview shows substituted values: patient name "Jane Doe", diagnosis "Melanoma", VCF Path = `/Users/wertherdong/workspace/somatic.vcf`
 - [ ] Click `Generate Report`
   - [ ] Button shows "Dispatching…"
   - [ ] Modal closes
@@ -94,8 +95,9 @@
 Without restarting the dev server, drop a markdown report file:
 
 - [ ] Run:
+
   ```bash
-  cat > /tmp/genomics-reports/${CASE_ID}-report.md << 'EOF'
+  cat > /Users/wertherdong/workspace/${CASE_ID}-report.md << 'EOF'
   # Molecular Pathology and Precision Oncology Report
 
   ## 1. Header / Specimen Information
@@ -137,6 +139,7 @@ Without restarting the dev server, drop a markdown report file:
   RESEARCH USE ONLY. Not for clinical decision-making.
   EOF
   ```
+
 - [ ] Server log shows: `[genomics watcher] imported report for case <CASE_ID> from /tmp/genomics-reports/<CASE_ID>-report.md`
 - [ ] **Filename anchor check**: try also `cp /tmp/genomics-reports/${CASE_ID}-report.md /tmp/genomics-reports/other-${CASE_ID}-stuff.md` — watcher log should say "could not match report file to a case" for the second file (anchored matcher rejects unanchored prefix)
 - [ ] Reload the Case Report & Review tab in the browser
@@ -224,5 +227,5 @@ Without restarting the dev server, drop a markdown report file:
 **Sign-off:**
 
 | Date | Tester | Notes |
-|---|---|---|
-| | | |
+| ---- | ------ | ----- |
+|      |        |       |

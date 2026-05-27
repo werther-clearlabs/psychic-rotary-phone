@@ -13,9 +13,9 @@ export function openDb(path: string): Database.Database {
 }
 
 const dbPath =
-  process.env.GENOMICS_DB_PATH ??
+  process.env.GENOMICS_DB_PATH ||
   join(
-    process.env.HERMES_HOME ?? join(homedir(), '.hermes'),
+    process.env.HERMES_HOME || join(homedir(), '.hermes'),
     'genomics.db',
   )
 

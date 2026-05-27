@@ -1,3 +1,4 @@
+import { join } from 'node:path'
 import { createFileRoute } from '@tanstack/react-router'
 // Ensure the file watcher is running before the first report is generated.
 import '../../../server/genomics/watcher-init'
@@ -18,8 +19,33 @@ export const Route = createFileRoute('/api/genomics/cases/$caseId/report/generat
         const protocol = getProtocol(undefined, body.protocol_id)
         if (!protocol) return Response.json({ error: 'Protocol not found' }, { status: 404 })
 
+        const watchPath = process.env.GENOMICS_REPORT_WATCH_PATH
+        if (!watchPath) {
+          return Response.json(
+            { error: 'GENOMICS_REPORT_WATCH_PATH not configured — cannot dispatch report generation' },
+            { status: 503 },
+          )
+        }
+
         const vars = resolveVariables(protocol, caseRecord as unknown as Record<string, unknown>, body.overrides ?? {})
-        const prompt = renderTemplate(protocol.prompt_template, vars)
+        const renderedPrompt = renderTemplate(protocol.prompt_template, vars)
+
+        // Append output requirements so the agent persists the report to the
+        // watcher directory with the case-id prefix filename convention. The
+        // watcher (watcher-init.ts) matches files by `{case_id}-report.md` or
+        // `{case_id}.md`; without these instructions the agent only streams
+        // into chat and no report row is ever inserted.
+        const outputFilename = `${params.caseId}-report.md`
+        const outputPath = join(watchPath, outputFilename)
+        const prompt = `${renderedPrompt}
+
+---
+OUTPUT REQUIREMENTS (mandatory — the workspace ingests the report via this file):
+- When the report is complete, use the Write tool to save the full markdown report to this exact path:
+  ${outputPath}
+- The filename MUST be exactly "${outputFilename}" (the case-id prefix is how the workspace matches the file to this case).
+- Use "## 1. …" through "## 12. …" section headings so the parser can split sections.
+- Do not modify or delete other files in ${watchPath}.`
 
         // Dispatch via the workspace chat pipeline. The agent executes the
         // Protocol's skills and writes the markdown report to
@@ -50,6 +76,7 @@ export const Route = createFileRoute('/api/genomics/cases/$caseId/report/generat
           ok: true,
           prompt_length: prompt.length,
           session_key: sessionKey,
+          output_path: outputPath,
         })
       },
     },

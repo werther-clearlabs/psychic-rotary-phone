@@ -2,6 +2,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import MonacoEditor from '@monaco-editor/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeSanitize from 'rehype-sanitize'
 import { useGenomicsStore } from '../../../stores/genomics-store'
 import type { Report, ReportFigure } from '../../../server/genomics/types'
 
@@ -58,7 +61,6 @@ interface Props {
 }
 
 export function ReportCanvas({ report, caseId }: Props) {
-  const [activeSection, setActiveSection] = useState<string>('1')
   const [signerName, setSignerName] = useState('')
   const [showSignDialog, setShowSignDialog] = useState(false)
   const { editingSection, setEditingSection } = useGenomicsStore()
@@ -112,7 +114,7 @@ export function ReportCanvas({ report, caseId }: Props) {
   const figures = report.figures as ReportFigure[]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }}>
       {/* Toolbar */}
       <div style={{
         padding: '8px 16px', borderBottom: '1px solid var(--gray-200)',
@@ -150,38 +152,15 @@ export function ReportCanvas({ report, caseId }: Props) {
         </div>
       </div>
 
-      {/* Section nav pills */}
-      <div style={{
-        padding: '8px 16px', borderBottom: '1px solid var(--gray-200)',
-        display: 'flex', gap: 4, flexWrap: 'wrap', background: '#fafafa', flexShrink: 0,
-      }}>
-        {sectionKeys.map((k) => (
-          <button
-            key={k}
-            onClick={() => setActiveSection(k)}
-            style={{
-              padding: '3px 10px', borderRadius: 12, fontSize: 10, fontWeight: 700,
-              border: `1px solid ${activeSection === k ? 'var(--brand-500)' : 'var(--gray-200)'}`,
-              background: activeSection === k ? 'var(--brand-500)' : '#fff',
-              color: activeSection === k ? '#fff' : 'var(--gray-700)',
-              cursor: 'pointer',
-            }}
-          >
-            §{k}
-          </button>
-        ))}
-      </div>
-
-      {/* Section content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+      {/* All sections, single scrollable column */}
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 24 }}>
         {sectionKeys.map((k) => {
-          if (k !== activeSection) return null
           const content = (report.sections as Record<string, string>)[k] ?? ''
           const sectionFigures = figures.filter((f) => f.section === k)
           const isEditing = editingSection === k
 
           return (
-            <div key={k}>
+            <section key={k} id={`section-${k}`} style={{ scrollMarginTop: 16, minWidth: 0 }}>
               {/* Section header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
@@ -226,12 +205,20 @@ export function ReportCanvas({ report, caseId }: Props) {
                   />
                 </div>
               ) : (
-                <div style={{
-                  background: '#fff', border: '1px solid var(--gray-200)', borderRadius: 4,
-                  padding: 16, fontSize: 14, lineHeight: '22px', color: 'var(--gray-900)',
-                  whiteSpace: 'pre-wrap', minHeight: 120,
-                }}>
-                  {content || <span style={{ color: 'var(--gray-400)', fontStyle: 'italic' }}>No content for this section.</span>}
+                <div
+                  className="cl-md"
+                  style={{
+                    background: '#fff', border: '1px solid var(--gray-200)', borderRadius: 4,
+                    padding: 16, minHeight: 120,
+                  }}
+                >
+                  {content ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>
+                      {content}
+                    </ReactMarkdown>
+                  ) : (
+                    <span style={{ color: 'var(--gray-400)', fontStyle: 'italic' }}>No content for this section.</span>
+                  )}
                 </div>
               )}
 
@@ -251,7 +238,7 @@ export function ReportCanvas({ report, caseId }: Props) {
                   )}
                 </div>
               ))}
-            </div>
+            </section>
           )
         })}
       </div>

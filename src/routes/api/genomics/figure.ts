@@ -23,7 +23,7 @@ export const Route = createFileRoute('/api/genomics/figure')({
         const absPath = resolvePath(rawPath)
         // Anchor figure paths to GENOMICS_NAS_BASE, falling back to GENOMICS_REPORT_WATCH_PATH
         // so the route is never an unrestricted filesystem read.
-        const rawBase = process.env.GENOMICS_NAS_BASE ?? process.env.GENOMICS_REPORT_WATCH_PATH ?? ''
+        const rawBase = process.env.GENOMICS_NAS_BASE || process.env.GENOMICS_REPORT_WATCH_PATH || ''
         if (!rawBase) {
           return Response.json({ error: 'Figure serving not configured' }, { status: 503 })
         }

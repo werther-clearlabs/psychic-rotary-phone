@@ -494,10 +494,10 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', height: 'calc(100vh - 200px)', overflow: 'hidden' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gridTemplateRows: 'minmax(0, 1fr)', height: 'calc(100dvh - 152px)', overflow: 'hidden' }}>
       {/* Left: report canvas */}
-      <div style={{ overflowY: 'auto', borderRight: '1px solid var(--gray-200)' }}>
-        <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--gray-200)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, minWidth: 0, borderRight: '1px solid var(--gray-200)' }}>
+        <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--gray-200)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa', flexShrink: 0 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gray-900)' }}>
             Molecular Pathology & Precision Oncology Report
           </span>
@@ -510,7 +510,9 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
             </button>
           )}
         </div>
-        <ReportCanvas report={report} caseId={caseId} />
+        <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <ReportCanvas report={report} caseId={caseId} />
+        </div>
       </div>
 
       {/* Right: AI chat panel */}
