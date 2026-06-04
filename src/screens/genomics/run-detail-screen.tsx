@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useParams, Link } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { useGenomicsStore } from '../../stores/genomics-store'
@@ -17,17 +17,31 @@ const STAGE_ICON: Record<string, string> = {
   failed: '✗',
 }
 
+async function startRun(id: string): Promise<void> {
+  const res = await fetch(`/api/genomics/runs/${id}/start`, { method: 'POST' })
+  if (!res.ok) {
+    const err = await res.json() as { error: string }
+    throw new Error(err.error ?? 'Failed to start run')
+  }
+}
+
 export function RunDetailScreen() {
   const { runId } = useParams({ from: '/genomics/runs_/$runId' })
   const appendRunLog = useGenomicsStore((s) => s.appendRunLog)
   const clearRunLog = useGenomicsStore((s) => s.clearRunLog)
   const logLines = useGenomicsStore((s) => s.runLogs[runId] ?? [])
   const logRef = useRef<HTMLDivElement>(null)
+  const qc = useQueryClient()
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['genomics', 'run', runId],
     queryFn: () => fetchRun(runId),
-    refetchInterval: 3000, // poll every 3s while run may be active
+    refetchInterval: 3000,
+  })
+
+  const startMutation = useMutation({
+    mutationFn: () => startRun(runId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['genomics', 'run', runId] }),
   })
 
   // SSE log stream
@@ -76,6 +90,22 @@ export function RunDetailScreen() {
           {run.pipeline}
           {run.reference ? ` · ${run.reference}` : ''}
         </span>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+          {run.status === 'queued' && (
+            <button
+              className="cl-btn cl-btn-primary cl-btn-sm"
+              onClick={() => startMutation.mutate()}
+              disabled={startMutation.isPending}
+            >
+              {startMutation.isPending ? 'Starting…' : '▶ Start Run'}
+            </button>
+          )}
+          {startMutation.isError && (
+            <span style={{ fontSize: 12, color: 'var(--red-600)' }}>
+              {(startMutation.error as Error).message}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="cl-content">
@@ -215,31 +245,21 @@ export function RunDetailScreen() {
               ))}
             </div>
 
-            {run.fastq_path && (
-              <div className="cl-card" style={{ padding: 'var(--cl-space-3)' }}>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.44px',
-                    color: 'var(--gray-700)',
-                    marginBottom: 4,
-                  }}
-                >
-                  FASTQ Path
+            {run.run_config && (() => {
+              const cfg = JSON.parse(run.run_config) as { input_dir?: string; samples?: string[]; output_dir?: string }
+              return (
+                <div className="cl-card" style={{ padding: 'var(--cl-space-3)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.44px', color: 'var(--gray-700)', marginBottom: 8 }}>
+                    Run Config
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12 }}>
+                    {cfg.input_dir && <div><span style={{ color: 'var(--gray-600)' }}>Input: </span>{cfg.input_dir}</div>}
+                    {run.output_dir && <div><span style={{ color: 'var(--gray-600)' }}>Output: </span>{run.output_dir}</div>}
+                    {cfg.samples && <div><span style={{ color: 'var(--gray-600)' }}>Samples: </span>{cfg.samples.join(', ')}</div>}
+                  </div>
                 </div>
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: 'var(--brand-600)',
-                    wordBreak: 'break-all',
-                  }}
-                >
-                  {run.fastq_path}
-                </div>
-              </div>
-            )}
+              )
+            })()}
           </div>
         </div>
       </div>

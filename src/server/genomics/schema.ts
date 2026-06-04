@@ -1,6 +1,10 @@
 // src/server/genomics/schema.ts
 import type Database from 'better-sqlite3'
 
+function addColumnIfMissing(db: Database.Database, table: string, column: string, definition: string) {
+  try { db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`) } catch {}
+}
+
 export function runMigrations(db: Database.Database): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS cases (
@@ -70,6 +74,17 @@ export function runMigrations(db: Database.Database): void {
       updated_at INTEGER NOT NULL
     );
 
+  `)
+
+  // Incremental migrations — safe to re-run on existing DBs
+  addColumnIfMissing(db, 'runs', 'run_config',  'TEXT')
+  addColumnIfMissing(db, 'runs', 'output_dir',  'TEXT')
+  addColumnIfMissing(db, 'runs', 'log_dir',     'TEXT')
+  addColumnIfMissing(db, 'runs', 'num_gpus',    'INTEGER NOT NULL DEFAULT 1')
+  addColumnIfMissing(db, 'runs', 'case_id',     'TEXT REFERENCES cases(id)')
+  addColumnIfMissing(db, 'run_stages', 'log_file_path', 'TEXT')
+
+  db.exec(`
     CREATE TABLE IF NOT EXISTS reports (
       id TEXT PRIMARY KEY,
       case_id TEXT NOT NULL REFERENCES cases(id) ON DELETE CASCADE,

@@ -4,6 +4,28 @@ export type RunStatus = 'queued' | 'running' | 'completed' | 'failed'
 export type StageStatus = 'pending' | 'running' | 'completed' | 'failed'
 export type ReportStatus = 'draft' | 'signed'
 
+export interface BatchSomaticTumorConfig {
+  mode: 'batch-somatic-tumor'
+  input_dir: string
+  samples: string[]
+  num_gpus_per_sample: number
+}
+
+export interface BatchGermlineConfig {
+  mode: 'batch-germline'
+  input_dir: string
+  samples: string[]
+  num_gpus_per_sample: number
+}
+
+export interface PairedSomaticConfig {
+  mode: 'paired-somatic'
+  normal: { sample_id: string; r1: string; r2: string }
+  tumor:  { sample_id: string; r1: string; r2: string }
+}
+
+export type RunConfig = BatchSomaticTumorConfig | BatchGermlineConfig | PairedSomaticConfig
+
 export interface Case {
   id: string
   patient_id: string | null
@@ -33,10 +55,17 @@ export interface Run {
   name: string
   pipeline: string
   reference: string | null
+  // Legacy flat fields (kept for backwards compat)
   fastq_path: string | null
   output_path: string | null
+  // Structured config
+  run_config: string | null     // JSON-encoded RunConfig
+  output_dir: string | null
+  log_dir: string | null
+  num_gpus: number
+  case_id: string | null
   status: RunStatus
-  pbrun_command: string | null
+  pbrun_command: string | null  // generated command stored for audit
   created_at: number
   updated_at: number
 }
@@ -49,6 +78,7 @@ export interface RunStage {
   started_at: number | null
   finished_at: number | null
   log_tail: string | null
+  log_file_path: string | null
 }
 
 export interface Protocol {

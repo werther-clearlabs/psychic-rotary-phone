@@ -1,18 +1,24 @@
 import { randomUUID } from 'node:crypto'
 import type Database from 'better-sqlite3'
 import { db as defaultDb } from './db'
-import type { Run, RunStage, RunStatus, StageStatus } from './types'
+import type { Run, RunConfig, RunStage, RunStatus, StageStatus } from './types'
 
 const UPDATABLE_RUN_FIELDS = new Set<keyof Run>([
   'name', 'pipeline', 'reference', 'fastq_path', 'output_path', 'status', 'pbrun_command',
+  'run_config', 'output_dir', 'log_dir', 'num_gpus', 'case_id',
 ])
 
 const UPDATABLE_STAGE_FIELDS = new Set<keyof RunStage>([
-  'status', 'started_at', 'finished_at', 'log_tail',
+  'status', 'started_at', 'finished_at', 'log_tail', 'log_file_path',
 ])
 
 type CreateRunInput = Partial<Omit<Run, 'id' | 'created_at' | 'updated_at'>> &
   Pick<Run, 'name' | 'pipeline' | 'status'>
+
+export function getRunConfig(run: Run): RunConfig | null {
+  if (!run.run_config) return null
+  try { return JSON.parse(run.run_config) as RunConfig } catch { return null }
+}
 
 export function listRuns(db: Database.Database = defaultDb): Run[] {
   return db.prepare('SELECT * FROM runs ORDER BY created_at DESC').all() as Run[]
@@ -26,9 +32,19 @@ export function createRun(db: Database.Database = defaultDb, input: CreateRunInp
   const id = randomUUID()
   const now = Date.now()
   db.prepare(`
-    INSERT INTO runs (id, name, pipeline, reference, fastq_path, output_path, status, pbrun_command, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, input.name, input.pipeline, input.reference ?? null, input.fastq_path ?? null, input.output_path ?? null, input.status, input.pbrun_command ?? null, now, now)
+    INSERT INTO runs (
+      id, name, pipeline, reference, fastq_path, output_path, status, pbrun_command,
+      run_config, output_dir, log_dir, num_gpus, case_id,
+      created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    id, input.name, input.pipeline, input.reference ?? null,
+    input.fastq_path ?? null, input.output_path ?? null,
+    input.status, input.pbrun_command ?? null,
+    input.run_config ?? null, input.output_dir ?? null, input.log_dir ?? null,
+    input.num_gpus ?? 1, input.case_id ?? null,
+    now, now,
+  )
   return getRun(db, id)!
 }
 
