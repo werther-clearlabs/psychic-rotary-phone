@@ -859,13 +859,13 @@ function ChatSidebarComponent({
       label: t('nav.files'),
       active: isFilesActive,
     },
-    {
-      kind: 'link',
-      to: '/terminal',
-      icon: ComputerTerminal01Icon,
-      label: t('nav.terminal'),
-      active: isTerminalActive,
-    },
+    // {
+    //   kind: 'link',
+    //   to: '/terminal',
+    //   icon: ComputerTerminal01Icon,
+    //   label: t('nav.terminal'),
+    //   active: isTerminalActive,
+    // },
     // {
     //   kind: 'link',
     //   to: '/jobs',
@@ -911,14 +911,14 @@ function ChatSidebarComponent({
     //   label: t('nav.memory'),
     //   active: isMemoryActive,
     // },
-    {
-      kind: 'link',
-      to: '/skills',
-      icon: PuzzleIcon,
-      label: t('nav.skills'),
-      active: isSkillsActive,
-      dataTour: 'skills',
-    },
+    // {
+    //   kind: 'link',
+    //   to: '/skills',
+    //   icon: PuzzleIcon,
+    //   label: t('nav.skills'),
+    //   active: isSkillsActive,
+    //   dataTour: 'skills',
+    // },
     // {
     //   kind: 'link',
     //   to: '/mcp',
@@ -1264,7 +1264,7 @@ function ChatSidebarComponent({
                 )}
               </AnimatePresence>
             </MenuTrigger>
-            <MenuContent side="top" align="start" className="min-w-[200px]">
+            {/* <MenuContent side="top" align="start" className="min-w-[200px]">
               <MenuItem
                 onClick={function onOpenSettings() {
                   handleOpenSettings('claude')
@@ -1280,7 +1280,7 @@ function ChatSidebarComponent({
                   Settings
                 </span>
               </MenuItem>
-            </MenuContent>
+            </MenuContent> */}
           </MenuRoot>
 
           {/* Settings + Theme toggle */}
@@ -1298,18 +1298,17 @@ function ChatSidebarComponent({
                   strokeWidth={1.5}
                 />
               </button>
-              <ThemeToggleMini />
             </div>
           )}
         </div>
       </div>
 
       {/* ── Dialogs ─────────────────────────────────────────────────── */}
-      <SettingsDialog
+      {/* <SettingsDialog
         open={settingsOpen}
         onOpenChange={setSettingsOpen}
         initialSection={settingsSection}
-      />
+      /> */}
 
       <ProvidersDialog open={providersOpen} onOpenChange={setProvidersOpen} />
 

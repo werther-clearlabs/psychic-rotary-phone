@@ -44,7 +44,9 @@ export function ChatEmptyState({
   onSuggestionClick,
   compact = false,
 }: ChatEmptyStateProps) {
-  const [activeProfile, setActiveProfile] = useState<ProfileSummary | null>(null)
+  const [activeProfile, setActiveProfile] = useState<ProfileSummary | null>(
+    null,
+  )
 
   useEffect(() => {
     fetch('/api/profiles/list')
@@ -70,7 +72,7 @@ export function ChatEmptyState({
         {/* Avatar in editorial frame, no glow — architectural restraint */}
         <div className="relative mb-6">
           <img
-            src="/claude-avatar.webp"
+            src="/clearlabs-logo.svg"
             alt="Hermes Agent"
             className="relative size-20 rounded-md"
             style={{
@@ -82,10 +84,7 @@ export function ChatEmptyState({
         </div>
 
         {/* Editorial micro-label */}
-        <p
-          className="micro-label mb-2"
-          style={{ color: 'var(--theme-muted)' }}
-        >
+        <p className="micro-label mb-2" style={{ color: 'var(--theme-muted)' }}>
           Hermes Workspace
         </p>
 
@@ -98,7 +97,10 @@ export function ChatEmptyState({
         </h2>
 
         {activeProfile && (
-          <span className="mt-2 text-xs" style={{ color: 'var(--theme-accent)' }}>
+          <span
+            className="mt-2 text-xs"
+            style={{ color: 'var(--theme-accent)' }}
+          >
             {activeProfile.name}
             {activeProfile.model ? ` · ${activeProfile.model}` : ''}
           </span>

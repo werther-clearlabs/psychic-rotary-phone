@@ -93,7 +93,7 @@ export const THEMES: Array<{
 ]
 
 const STORAGE_KEY = 'claude-theme'
-const DEFAULT_THEME: ThemeId = 'claude-nous'
+const DEFAULT_THEME: ThemeId = 'claude-nous-light'
 const THEME_SET = new Set<ThemeId>(THEMES.map((theme) => theme.id))
 const LIGHT_THEME_MAP: Record<
   Exclude<ThemeId, `${string}-light`>,
@@ -153,9 +153,7 @@ export function getThemeVariant(
 }
 
 export function getTheme(): ThemeId {
-  if (typeof window === 'undefined') return DEFAULT_THEME
-  const stored = localStorage.getItem(STORAGE_KEY)
-  return isValidTheme(stored) ? stored : DEFAULT_THEME
+  return DEFAULT_THEME
 }
 
 export function setTheme(theme: ThemeId): void {

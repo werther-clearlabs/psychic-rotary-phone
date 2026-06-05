@@ -46,33 +46,16 @@ const APP_CSP = [
   "frame-src 'self' http: https:",
 ].join('; ')
 
-const THEME_STORAGE_KEY = 'claude-theme'
-const DEFAULT_THEME = 'claude-nous'
-const VALID_THEMES = [
-  'claude-nous',
-  'claude-nous-light',
-  'claude-official',
-  'claude-official-light',
-  'claude-classic',
-  'claude-classic-light',
-  'claude-slate',
-  'claude-slate-light',
-]
-
 const themeScript = `
 (() => {
   window.process = window.process || { env: {}, platform: 'browser' };
 
   try {
     const root = document.documentElement
-    const storedTheme = localStorage.getItem('${THEME_STORAGE_KEY}')
-    const theme = ${JSON.stringify(VALID_THEMES)}.includes(storedTheme) ? storedTheme : '${DEFAULT_THEME}'
-    const lightThemes = ['claude-nous-light', 'claude-official-light', 'claude-classic-light', 'claude-slate-light']
-    const isDark = !lightThemes.includes(theme)
     root.classList.remove('light', 'dark', 'system')
-    root.classList.add(isDark ? 'dark' : 'light')
-    root.setAttribute('data-theme', theme)
-    root.style.setProperty('color-scheme', isDark ? 'dark' : 'light')
+    root.classList.add('light')
+    root.setAttribute('data-theme', 'claude-nous-light')
+    root.style.setProperty('color-scheme', 'light')
 
     // Demo mode
     try {
@@ -88,28 +71,14 @@ const themeColorScript = `
 (() => {
   try {
     const root = document.documentElement
-    const theme = root.getAttribute('data-theme') || '${DEFAULT_THEME}'
-    const colors = {
-      'claude-nous': '#031A1A',
-      'claude-nous-light': '#F8FAF8',
-      'claude-official': '#0A0E1A',
-      'claude-official-light': '#F7F7F1',
-      'claude-classic': '#0d0f12',
-      'claude-classic-light': '#F5F2ED',
-      'claude-slate': '#0d1117',
-      'claude-slate-light': '#F6F8FA',
-    }
-    const nextColor = colors[theme] || colors['${DEFAULT_THEME}']
-    const isDark = !['claude-nous-light', 'claude-official-light', 'claude-classic-light', 'claude-slate-light'].includes(String(theme))
-
     let meta = document.querySelector('meta[name="theme-color"]')
     if (!meta) {
       meta = document.createElement('meta')
       meta.setAttribute('name', 'theme-color')
       document.head.appendChild(meta)
     }
-    meta.setAttribute('content', nextColor)
-    root.style.setProperty('color-scheme', isDark ? 'dark' : 'light')
+    meta.setAttribute('content', '#F5F6F8')
+    root.style.setProperty('color-scheme', 'light')
   } catch {}
 })()
 `
@@ -438,55 +407,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             if (location.pathname === '/hermes-world' || location.pathname.indexOf('/hermes-world/') === 0 || location.pathname === '/world' || location.pathname.indexOf('/world/') === 0) return;
             var d = document.getElementById('splash-screen');
             if (!d) return;
-            var bg = '#031A1A', txt = '#F8F1E3', muted = '#9CB2AE', accent = '#FFAC02';
-            try {
-              var theme = localStorage.getItem('${THEME_STORAGE_KEY}') || '${DEFAULT_THEME}';
-              if (theme === 'claude-nous') {
-                bg = '#031A1A';
-                txt = '#F8F1E3';
-                muted = '#9CB2AE';
-                accent = '#FFAC02';
-              } else if (theme === 'claude-nous-light') {
-                bg = '#F8FAF8';
-                txt = '#16315F';
-                muted = '#6F7D96';
-                accent = '#2557B7';
-              } else if (theme === 'claude-classic') {
-                bg = '#0d0f12';
-                txt = '#eceff4';
-                muted = '#7f8a96';
-                accent = '#b98a44';
-              } else if (theme === 'claude-official-light') {
-                bg = '#F7F7F1';
-                txt = '#16315F';
-                muted = '#6F7D96';
-                accent = '#2557B7';
-              } else if (theme === 'claude-classic-light') {
-                bg = '#F5F2ED';
-                txt = '#1a1f26';
-                muted = '#6F675E';
-                accent = '#b98a44';
-              } else if (theme === 'claude-slate') {
-                bg = '#0d1117';
-                txt = '#c9d1d9';
-                muted = '#8b949e';
-                accent = '#7eb8f6';
-              } else if (theme === 'claude-slate-light') {
-                bg = '#F6F8FA';
-                txt = '#24292f';
-                muted = '#57606A';
-                accent = '#3b82f6';
-              }
-            } catch(e){}
-
-            var isDark = !['claude-nous-light','claude-official-light','claude-classic-light','claude-slate-light'].includes(theme);
+            var bg = '#F5F6F8', txt = '#2D3038', muted = '#6B7280', accent = '#559CC0';
+            var isDark = false;
             var quips = ["Consulting the oracle...","Loading ancient knowledge...","Warming up the messenger...","Calibrating tool chain...","Summoning your agent...","Preparing the workspace...","Bridging realms...","Initializing agent runtime..."];
             var quip = quips[Math.floor(Math.random() * quips.length)];
 
             d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:'+bg+';transition:opacity 0.5s ease;';
-            d.innerHTML = '<img src="/claude-avatar.webp" alt="Hermes Agent" style="width:80px;height:80px;margin-bottom:20px;border-radius:16px;filter:drop-shadow(0 8px 32px color-mix(in srgb,'+accent+' 45%, transparent))" />'
-              + '<img src="'+(isDark ? '/claude-banner.png' : '/claude-banner-light.png')+'" alt="Hermes Workspace" style="width:280px;height:auto;margin-bottom:8px;filter:drop-shadow(0 4px 16px '+(isDark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)')+')" />'
-              + '<div style="font:400 14px/1 system-ui,-apple-system,sans-serif;letter-spacing:0.04em;color:'+muted+'">Workspace</div>'
+            d.innerHTML = '<img src="/clearlabs-logo.svg" alt="Hermes Agent" style="width:80px;height:80px;margin-bottom:20px;border-radius:16px;filter:drop-shadow(0 8px 32px color-mix(in srgb,'+accent+' 45%, transparent))" />'
               + '<div style="margin-top:28px;width:140px;height:3px;background:'+(isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)')+';border-radius:3px;overflow:hidden;position:relative"><div id=splash-bar style="width:0%;height:100%;background:'+accent+';border-radius:3px;transition:width 0.4s ease"></div></div>';
 
             var bar = document.getElementById('splash-bar');
