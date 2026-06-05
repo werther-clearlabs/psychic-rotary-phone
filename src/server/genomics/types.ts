@@ -35,6 +35,7 @@ export interface Case {
   stage: string | null
   assay_type: string | null      // e.g. 'WGS' | 'targeted-panel' | 'RNA-seq' — used by GenerateReportModal to filter protocols
   status: CaseStatus
+  report_status: ReportStatus | null
   ehr_summary: string | null
   created_at: number
   updated_at: number

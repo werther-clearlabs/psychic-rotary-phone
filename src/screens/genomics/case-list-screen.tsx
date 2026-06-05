@@ -165,7 +165,7 @@ export function CaseListScreen() {
                 <th>Patient ID</th>
                 <th>Diagnosis</th>
                 <th>Stage</th>
-                <th>Status</th>
+                <th>Report Status</th>
                 <th>Created</th>
               </tr>
             </thead>
@@ -211,7 +211,7 @@ export function CaseListScreen() {
                   <td>{c.diagnosis ?? '—'}</td>
                   <td style={{ color: 'var(--gray-700)' }}>{c.stage ?? '—'}</td>
                   <td>
-                    <StatusBadge status={c.status} />
+                    {c.report_status ? <StatusBadge status={c.report_status} /> : '—'}
                   </td>
                   <td style={{ color: 'var(--gray-600)', fontSize: 11 }}>
                     {new Date(c.created_at).toLocaleDateString()}
