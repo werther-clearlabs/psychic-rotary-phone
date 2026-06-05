@@ -1,11 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import type { Case, CaseSample, Report } from '../../server/genomics/types'
 import { useGenomicsStore } from '../../stores/genomics-store'
 import { GenerateReportModal } from './components/generate-report-modal'
 import { ReportCanvas } from './components/report-canvas'
 import { ReportChatPanel } from './components/report-chat-panel'
+import type { Case, CaseSample, Report, Run } from '../../server/genomics/types'
 
 async function fetchCase(
   id: string,
@@ -361,15 +361,11 @@ function FilesTab({ samples }: { samples: CaseSample[] }) {
 }
 
 function RunsTab({ caseId }: { caseId: string }) {
-  const { data: allRuns = [] } = useQuery({
-    queryKey: ['genomics', 'runs'],
+  const { data: runs = [] } = useQuery({
+    queryKey: ['genomics', 'case', caseId, 'runs'],
     queryFn: async () => {
-      const res = await fetch('/api/genomics/runs')
-      return (
-        (await res.json()) as {
-          runs: import('../../server/genomics/types').Run[]
-        }
-      ).runs
+      const res = await fetch(`/api/genomics/cases/${caseId}/runs`)
+      return ((await res.json()) as { runs: Array<Run> }).runs
     },
   })
   return (
@@ -384,29 +380,24 @@ function RunsTab({ caseId }: { caseId: string }) {
           </tr>
         </thead>
         <tbody>
-          {allRuns.length === 0 && (
+          {runs.length === 0 && (
             <tr>
-              <td
-                colSpan={4}
-                style={{
-                  color: 'var(--gray-500)',
-                  textAlign: 'center',
-                  padding: 24,
-                }}
-              >
-                No linked runs
+              <td colSpan={4} style={{ color: 'var(--gray-500)', textAlign: 'center', padding: 24 }}>
+                No runs linked to this case
               </td>
             </tr>
           )}
-          {allRuns.map((r) => (
+          {runs.map((r) => (
             <tr key={r.id}>
-              <td style={{ fontWeight: 700 }}>{r.name}</td>
+              <td style={{ fontWeight: 700 }}>
+                <Link to="/genomics/runs/$runId" params={{ runId: r.id }} style={{ color: 'var(--brand-600)' }}>
+                  {r.name}
+                </Link>
+              </td>
               <td>{r.pipeline}</td>
               <td style={{ color: 'var(--gray-700)' }}>{r.reference ?? '—'}</td>
               <td>
-                <span className={`cl-badge cl-badge-${r.status}`}>
-                  {r.status}
-                </span>
+                <span className={`cl-badge cl-badge-${r.status}`}>{r.status}</span>
               </td>
             </tr>
           ))}
