@@ -6,6 +6,7 @@ import { GenerateReportModal } from './components/generate-report-modal'
 import { ReportCanvas } from './components/report-canvas'
 import { ReportChatPanel } from './components/report-chat-panel'
 import type { Case, CaseSample, Report, Run } from '../../server/genomics/types'
+import { toast } from '@/components/ui/toast'
 
 async function fetchCase(
   id: string,
@@ -43,10 +44,18 @@ export function CaseDetailScreen() {
     queryKey: ['genomics', 'case', caseId],
     queryFn: () => fetchCase(caseId),
   })
+  const { reportGeneratingCases, clearReportGenerating } = useGenomicsStore()
+  const isGenerating = !!reportGeneratingCases[caseId]
+
   const { data: report } = useQuery({
     queryKey: ['genomics', 'case', caseId, 'report'],
     queryFn: () => fetchReport(caseId),
+    refetchInterval: isGenerating ? 8000 : false,
   })
+
+  useEffect(() => {
+    if (report && isGenerating) clearReportGenerating(caseId)
+  }, [report, isGenerating, caseId, clearReportGenerating])
 
   if (isLoading)
     return (
@@ -107,7 +116,7 @@ export function CaseDetailScreen() {
           <OverviewTab c={c} samples={samples} report={report} />
         )}
         {activeTab === 'Report & Review' && (
-          <ReportAndReviewTab c={c} caseId={caseId} report={report ?? null} />
+          <ReportAndReviewTab c={c} caseId={caseId} report={report ?? null} isGenerating={isGenerating} />
         )}
         {activeTab === 'Files' && <FilesTab samples={samples} />}
         {activeTab === 'Runs' && <RunsTab caseId={caseId} />}
@@ -442,8 +451,8 @@ function HistoryTab({ report }: { report: Report | null }) {
   )
 }
 
-function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; report: Report | null }) {
-  const { generateModalOpen, openGenerateModal, closeGenerateModal } = useGenomicsStore()
+function ReportAndReviewTab({ c, caseId, report, isGenerating }: { c: Case; caseId: string; report: Report | null; isGenerating: boolean }) {
+  const { generateModalOpen, openGenerateModal, closeGenerateModal, markReportGenerating } = useGenomicsStore()
 
   useEffect(() => {
     return () => closeGenerateModal()
@@ -453,19 +462,36 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
   if (!report) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--gray-600)' }}>
-        <div style={{ fontSize: 48, marginBottom: 16, color: 'var(--gray-300)' }}>⬡</div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 8 }}>
-          No report generated yet
-        </h3>
-        <p style={{ fontSize: 13, color: 'var(--gray-600)', marginBottom: 24, maxWidth: 380, margin: '0 auto 24px' }}>
-          Select a Protocol to dispatch the AI agent. The report will appear here once the agent finishes.
-        </p>
-        <button
-          onClick={() => openGenerateModal()}
-          style={{ padding: '8px 24px', borderRadius: 3, fontSize: 13, fontWeight: 700, background: 'var(--brand-500)', color: '#fff', border: 'none', cursor: 'pointer' }}
-        >
-          Generate Report
-        </button>
+        {isGenerating ? (
+          <>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>⏳</div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 8 }}>
+              Report generation in progress
+            </h3>
+            <p style={{ fontSize: 13, color: 'var(--gray-600)', maxWidth: 380, margin: '0 auto 8px' }}>
+              The AI agent is analyzing the case and writing the report. This typically takes a few minutes.
+            </p>
+            <p style={{ fontSize: 12, color: 'var(--gray-400)', maxWidth: 380, margin: '0 auto' }}>
+              This page will update automatically when the report is ready.
+            </p>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 48, marginBottom: 16, color: 'var(--gray-300)' }}>⬡</div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 8 }}>
+              No report generated yet
+            </h3>
+            <p style={{ fontSize: 13, color: 'var(--gray-600)', marginBottom: 24, maxWidth: 380, margin: '0 auto 24px' }}>
+              Select a Protocol to dispatch the AI agent. The report will appear here once the agent finishes.
+            </p>
+            <button
+              onClick={() => openGenerateModal()}
+              style={{ padding: '8px 24px', borderRadius: 3, fontSize: 13, fontWeight: 700, background: 'var(--brand-500)', color: '#fff', border: 'none', cursor: 'pointer' }}
+            >
+              Generate Report
+            </button>
+          </>
+        )}
         {generateModalOpen && (
           <GenerateReportModal
             caseId={caseId}
@@ -473,7 +499,8 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
             onClose={closeGenerateModal}
             onDispatched={() => {
               closeGenerateModal()
-              // Poll for report availability after dispatch
+              markReportGenerating(caseId)
+              toast('Report generation dispatched — the report will appear once the agent finishes.', { type: 'success' })
               setTimeout(() => {
                 void qc.invalidateQueries({ queryKey: ['genomics', 'case', caseId, 'report'] })
               }, 3000)
@@ -517,6 +544,7 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
           onClose={closeGenerateModal}
           onDispatched={() => {
             closeGenerateModal()
+            toast('Report generation dispatched — the report will appear once the agent finishes.', { type: 'success' })
             void qc.invalidateQueries({ queryKey: ['genomics', 'case', caseId, 'report'] })
           }}
         />
