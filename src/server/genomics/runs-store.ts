@@ -87,9 +87,9 @@ export function upsertStage(
   }
   const id = randomUUID()
   db.prepare(`
-    INSERT INTO run_stages (id, run_id, name, status, started_at, finished_at, log_tail)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(id, runId, name, patch.status ?? 'pending', patch.started_at ?? null, patch.finished_at ?? null, patch.log_tail ?? null)
+    INSERT INTO run_stages (id, run_id, name, status, started_at, finished_at, log_tail, log_file_path)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, runId, name, patch.status ?? 'pending', patch.started_at ?? null, patch.finished_at ?? null, patch.log_tail ?? null, patch.log_file_path ?? null)
   return db.prepare('SELECT * FROM run_stages WHERE id = ?').get(id) as RunStage
 }
 
