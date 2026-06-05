@@ -15,8 +15,12 @@ export const Route = createFileRoute('/api/genomics/runs/$runId/log')({
         const encoder = new TextEncoder()
         const stream = new ReadableStream({
           start(controller) {
+            const heartbeat = () => controller.enqueue(encoder.encode(': heartbeat\n\n'))
             const send = (data: string) =>
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ line: data })}\n\n`))
+
+            // Send immediately so Cloudflare/proxies don't 524 before the first byte
+            heartbeat()
 
             // Track read positions: file-based stages use byte offsets, DB stages use char counts
             const fileOffsets: Record<string, number> = {}  // stageId → bytes read
@@ -44,38 +48,41 @@ export const Route = createFileRoute('/api/genomics/runs/$runId/log')({
               }
             }
 
-            // Poll every 2s and send only new content
-            const interval = setInterval(() => {
-              for (const stage of listStages(undefined, params.runId)) {
-                if (stage.log_file_path) {
-                  const size = fileSizeOrNull(stage.log_file_path)
-                  if (size === null) continue
-                  const prev = fileOffsets[stage.id] ?? 0
-                  if (size <= prev) continue
-                  const rs = createReadStream(stage.log_file_path, { start: prev, encoding: 'utf8' })
-                  let buf = ''
-                  rs.on('data', (chunk) => { buf += chunk })
-                  rs.on('end', () => {
-                    for (const line of buf.split('\n')) if (line) send(line)
-                    fileOffsets[stage.id] = size
-                  })
-                } else {
-                  // Fallback: DB log_tail
-                  const log = stage.log_tail ?? ''
-                  const prev = dbCursors[stage.id] ?? 0
-                  if (log.length > prev) {
-                    const newContent = log.slice(prev)
-                    for (const line of newContent.split('\n')) if (line) send(line)
-                    dbCursors[stage.id] = log.length
-                  } else if (log.length < prev) {
-                    dbCursors[stage.id] = log.length
+            // Poll every 2s; keep-alive every 30s for Cloudflare / long-lived proxies
+            const timers = [
+              setInterval(heartbeat, 30_000),
+              setInterval(() => {
+                for (const stage of listStages(undefined, params.runId)) {
+                  if (stage.log_file_path) {
+                    const size = fileSizeOrNull(stage.log_file_path)
+                    if (size === null) continue
+                    const prev = fileOffsets[stage.id] ?? 0
+                    if (size <= prev) continue
+                    const rs = createReadStream(stage.log_file_path, { start: prev, encoding: 'utf8' })
+                    let buf = ''
+                    rs.on('data', (chunk) => { buf += chunk })
+                    rs.on('end', () => {
+                      for (const line of buf.split('\n')) if (line) send(line)
+                      fileOffsets[stage.id] = size
+                    })
+                  } else {
+                    // Fallback: DB log_tail
+                    const log = stage.log_tail ?? ''
+                    const prev = dbCursors[stage.id] ?? 0
+                    if (log.length > prev) {
+                      const newContent = log.slice(prev)
+                      for (const line of newContent.split('\n')) if (line) send(line)
+                      dbCursors[stage.id] = log.length
+                    } else if (log.length < prev) {
+                      dbCursors[stage.id] = log.length
+                    }
                   }
                 }
-              }
-            }, 2000)
+              }, 2000),
+            ]
 
             request.signal.addEventListener('abort', () => {
-              clearInterval(interval)
+              timers.forEach(clearInterval)
               controller.close()
             })
           },

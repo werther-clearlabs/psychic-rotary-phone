@@ -31,16 +31,16 @@ ls /mnt/storage/parabricks_test/data/pillar_test_data/onc089eec2c-SIP0001_S*_L00
 
 ### 3. Test data paths
 
-| Variable | Expected path |
-|---|---|
-| INDIR | `/mnt/storage/parabricks_test/data/pillar_test_data/onc089eec2c` |
-| Sample glob | `${INDIR}-${SAMPLE}_S*_L001_R{1,2}_001.fastq.gz` |
-| Output | Create a writable dir, e.g. `/mnt/storage/parabricks_test/results/e2e-test-001` |
+| Variable    | Expected path                                                                   |
+| ----------- | ------------------------------------------------------------------------------- |
+| INDIR       | `/mnt/storage/parabricks_test/data/pillar_test_data/onc089eec2c`                |
+| Sample glob | `${INDIR}-${SAMPLE}_S*_L001_R{1,2}_001.fastq.gz`                                |
+| Output      | Create a writable dir, e.g. `/mnt/storage/parabricks_test/results/e2e-test-001` |
 
 ### 4. Create a test case (if none exists)
 
 ```bash
-curl -sf -X POST http://localhost:3000/api/genomics/cases \
+curl -sf -X POST http://localhost:3001/api/genomics/cases \
   -H "Authorization: Bearer $HERMES_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"patient_id":"E2E-001","patient_name":"E2E Test Patient","status":"active"}' | jq .
@@ -59,21 +59,25 @@ Save the returned `id` as `$CASE_ID` for use in tests below.
 **Goal:** Verify the DB migration applies without error on a fresh or existing database.
 
 **Steps:**
+
 1. Start (or restart) the workspace server
 2. Check server logs for migration errors
 
 **Expected:**
+
 - Server starts without SQLite errors
 - No `table already exists` or `duplicate column` errors
 
 **Verify (optional — direct DB inspection):**
+
 ```bash
 sqlite3 ~/.hermes/genomics.db ".schema runs" | grep -E "run_config|output_dir|log_dir|num_gpus|case_id"
 sqlite3 ~/.hermes/genomics.db ".schema run_stages" | grep log_file_path
 ```
+
 All 6 new columns should be present.
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -82,20 +86,23 @@ All 6 new columns should be present.
 **Goal:** Confirm the new validation on `POST /api/genomics/runs`.
 
 **Steps:**
+
 ```bash
-curl -sf -X POST http://localhost:3000/api/genomics/runs \
+curl -sf -X POST http://localhost:3001/api/genomics/runs \
   -H "Authorization: Bearer $HERMES_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name":"no-case","pipeline":"batch-somatic-tumor","status":"queued"}' | jq .
 ```
 
 **Expected:**
+
 ```json
 { "error": "case_id is required" }
 ```
+
 HTTP 400.
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -104,8 +111,9 @@ HTTP 400.
 **Goal:** Create a queued run with all required fields and verify DB row.
 
 **Steps:**
+
 ```bash
-curl -sf -X POST http://localhost:3000/api/genomics/runs \
+curl -sf -X POST http://localhost:3001/api/genomics/runs \
   -H "Authorization: Bearer $HERMES_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d "{
@@ -124,6 +132,7 @@ curl -sf -X POST http://localhost:3000/api/genomics/runs \
 Save the returned `run.id` as `$RUN_ID`.
 
 **Expected:**
+
 - HTTP 201
 - Response has `run.id`, `run.status === "queued"`, `run.run_config` is non-null
 - `case_runs` junction row created:
@@ -131,7 +140,7 @@ Save the returned `run.id` as `$RUN_ID`.
   sqlite3 ~/.hermes/genomics.db "SELECT * FROM case_runs WHERE run_id='$RUN_ID';"
   ```
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -140,7 +149,8 @@ Save the returned `run.id` as `$RUN_ID`.
 **Goal:** Verify the structured form in the browser creates a run and navigates to the detail page.
 
 **Steps:**
-1. Open `http://localhost:3000/genomics/runs` in browser
+
+1. Open `http://localhost:3001/genomics/runs` in browser
 2. Click **+ New Run**
 3. Fill in:
    - Run Name: `ui-test-01`
@@ -153,13 +163,14 @@ Save the returned `run.id` as `$RUN_ID`.
 4. Click **Create Run**
 
 **Expected:**
+
 - No error message shown
 - Browser navigates to `/genomics/runs/$newRunId`
 - Title bar shows run name + **queued** badge
 - **▶ Start Run** button is visible
 - Stage list shows "No stages recorded"
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -168,16 +179,19 @@ Save the returned `run.id` as `$RUN_ID`.
 **Goal:** Verify the start endpoint generates the script and marks the run `running`.
 
 **Steps:**
+
 ```bash
-curl -sf -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/start \
+curl -sf -X POST http://localhost:3001/api/genomics/runs/$RUN_ID/start \
   -H "Authorization: Bearer $HERMES_API_TOKEN" | jq .run.status
 ```
 
 **Expected immediately:**
+
 - HTTP 202
 - `run.status === "running"`
 
 **Verify on disk:**
+
 ```bash
 ls -la /mnt/storage/parabricks_test/results/e2e-test-001/logs/
 # Should contain: script.sh
@@ -185,6 +199,7 @@ cat /mnt/storage/parabricks_test/results/e2e-test-001/logs/script.sh
 ```
 
 Expected script content checks:
+
 - `pbrun somatic` command present
 - `INDIR=` matches the input_dir you provided
 - `SAMPLES=("SIP0001" "SIP0002")`
@@ -193,12 +208,14 @@ Expected script content checks:
 - `tee "${LOGDIR}/${SAMPLE}.log"` present
 
 **Verify stages created in DB:**
+
 ```bash
 sqlite3 ~/.hermes/genomics.db "SELECT name, status, log_file_path FROM run_stages WHERE run_id='$RUN_ID';"
 ```
+
 Should show SIP0001 and SIP0002 rows with `status=pending` and `log_file_path` set.
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -207,19 +224,22 @@ Should show SIP0001 and SIP0002 rows with `status=pending` and `log_file_path` s
 **Goal:** Verify 409 on double-start.
 
 **Steps:**
+
 ```bash
 # With the run already running:
-curl -sf -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/start \
+curl -sf -X POST http://localhost:3001/api/genomics/runs/$RUN_ID/start \
   -H "Authorization: Bearer $HERMES_API_TOKEN" | jq .
 ```
 
 **Expected:**
+
 ```json
 { "error": "Run is already running" }
 ```
+
 HTTP 409.
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -228,28 +248,33 @@ HTTP 409.
 **Goal:** Verify the ingest endpoint updates stage status correctly (can be tested before a full run).
 
 **Steps (use a fresh queued run with stages pre-created via /start, or test on a running run):**
+
 ```bash
-curl -sf -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/ingest \
+curl -sf -X POST http://localhost:3001/api/genomics/runs/$RUN_ID/ingest \
   -H "Authorization: Bearer $HERMES_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"event":"stage_start","stage":"SIP0001"}' | jq .
 ```
 
 **Expected:**
+
 ```json
 { "ok": true }
 ```
 
 **Verify:**
+
 ```bash
 sqlite3 ~/.hermes/genomics.db \
   "SELECT name, status, started_at FROM run_stages WHERE run_id='$RUN_ID' AND name='SIP0001';"
 ```
+
 `status=running`, `started_at` is non-null.
 
 Repeat with `stage_complete`:
+
 ```bash
-curl -sf -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/ingest \
+curl -sf -X POST http://localhost:3001/api/genomics/runs/$RUN_ID/ingest \
   -H "Authorization: Bearer $HERMES_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"event":"stage_complete","stage":"SIP0001","exit_code":0}' | jq .
@@ -257,7 +282,7 @@ curl -sf -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/ingest \
 
 Check `status=completed`, `finished_at` non-null.
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -266,16 +291,17 @@ Check `status=completed`, `finished_at` non-null.
 **Goal:** Verify unauthorized requests are rejected.
 
 **Steps:**
+
 ```bash
-curl -i -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/ingest \
+curl -i -X POST http://localhost:3001/api/genomics/runs/$RUN_ID/ingest \
   -H "Authorization: Bearer wrong-token" \
   -H "Content-Type: application/json" \
-  -d '{"event":"run_complete"}' 
+  -d '{"event":"run_complete"}'
 ```
 
 **Expected:** HTTP 401.
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -284,6 +310,7 @@ curl -i -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/ingest \
 **Goal:** Watch stage status badges update in the browser as the script runs.
 
 **Steps:**
+
 1. Create a new run via the UI form with samples `SIP0001, SIP0002`
 2. Navigate to the run detail page
 3. Click **▶ Start Run**
@@ -291,17 +318,17 @@ curl -i -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/ingest \
 
 **Expected progression (poll every 3s, so changes visible within ~3s of each event):**
 
-| Time | SIP0001 | SIP0002 |
-|---|---|---|
-| After start | ○ pending | ○ pending |
-| ~seconds | ⟳ running | ○ pending |
-| After SIP0001 completes (~20–60 min) | ✓ completed | ⟳ running |
-| After SIP0002 completes | ✓ completed | ✓ completed |
+| Time                                 | SIP0001     | SIP0002     |
+| ------------------------------------ | ----------- | ----------- |
+| After start                          | ○ pending   | ○ pending   |
+| ~seconds                             | ⟳ running   | ○ pending   |
+| After SIP0001 completes (~20–60 min) | ✓ completed | ⟳ running   |
+| After SIP0002 completes              | ✓ completed | ✓ completed |
 
 - Title bar badge changes from **running** → **completed** after final ingest event
 - **▶ Start Run** button disappears once status is no longer `queued`
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -310,21 +337,24 @@ curl -i -X POST http://localhost:3000/api/genomics/runs/$RUN_ID/ingest \
 **Goal:** Verify parabricks log output appears in the live log panel.
 
 **Steps:**
+
 1. On a running run detail page, watch the dark log panel on the right
 2. Wait for SIP0001 to start (ingest `stage_start` fires)
 3. Check that log lines are appearing
 
 **Expected:**
+
 - Log lines from `$LOGDIR/SIP0001.log` stream into the panel
 - New lines appear within ~2s of being written by the Docker container
 - Older lines visible from the initial flush when the page loads
 
 **Also verify the log file is being written:**
+
 ```bash
 tail -f /mnt/storage/parabricks_test/results/e2e-test-001/logs/SIP0001.log
 ```
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -333,17 +363,20 @@ tail -f /mnt/storage/parabricks_test/results/e2e-test-001/logs/SIP0001.log
 **Goal:** Verify that a Docker failure sets stage and run to `failed` in the UI.
 
 **Steps:**
+
 1. Create a run with an intentionally bad sample ID (one that has no matching FASTQ files),
    e.g. Sample IDs: `DOESNOTEXIST`
 2. Start the run
 3. Observe run detail page
 
 **Expected:**
+
 - Stage `DOESNOTEXIST` transitions to ○ pending → ⟳ running → ✗ failed
 - Run status badge changes from **running** → **failed**
 - Log panel shows the error output from the failed `ls` glob or Docker exit
 
 **Verify in DB:**
+
 ```bash
 sqlite3 ~/.hermes/genomics.db \
   "SELECT name, status, finished_at FROM run_stages WHERE run_id='$BAD_RUN_ID';"
@@ -351,7 +384,7 @@ sqlite3 ~/.hermes/genomics.db \
   "SELECT status FROM runs WHERE id='$BAD_RUN_ID';"
 ```
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -360,6 +393,7 @@ sqlite3 ~/.hermes/genomics.db \
 **Goal:** End-to-end run with real parabricks execution on the smallest available samples.
 
 **Steps:**
+
 1. Via UI form, create run:
    - Run Name: `full-e2e-SIP0001-SIP0002`
    - Case: test case
@@ -371,6 +405,7 @@ sqlite3 ~/.hermes/genomics.db \
 3. Monitor the detail page; also watch GPU dashboard for utilization
 
 **Expected timeline (approximate — depends on data size):**
+
 - Both stages cycle through pending → running → completed
 - Run status reaches **completed**
 - Output files exist on NAS:
@@ -385,7 +420,7 @@ sqlite3 ~/.hermes/genomics.db \
   ```
 - GPU utilization card on dashboard shows activity during run
 
-**Pass / Fail:** ___
+**Pass / Fail:** \_\_\_
 
 ---
 
@@ -393,28 +428,30 @@ sqlite3 ~/.hermes/genomics.db \
 
 Verify existing features still work after the migration:
 
-| Check | Expected |
-|---|---|
-| `/genomics/cases` list loads | ✓ |
+| Check                                                  | Expected                                  |
+| ------------------------------------------------------ | ----------------------------------------- |
+| `/genomics/cases` list loads                           | ✓                                         |
 | Existing runs (pre-migration) still appear in run list | ✓ (columns nullable; old rows unaffected) |
-| Case detail page loads | ✓ |
-| Dashboard GPU card still refreshes | ✓ |
-| `/genomics/runs` page loads (no form open) | ✓ |
+| Case detail page loads                                 | ✓                                         |
+| Dashboard GPU card still refreshes                     | ✓                                         |
+| `/genomics/runs` page loads (no form open)             | ✓                                         |
 
 ---
 
 ## Notes for Debugging
 
 **Check server logs for ingest calls:**
+
 ```bash
 # If using pnpm start with stdout logging:
 journalctl -u hermes-workspace -f | grep ingest
 ```
 
 **Manually fire all ingest events for a run (useful for UI testing without waiting for pbrun):**
+
 ```bash
 RUN_ID=<your-run-id>
-BASE="http://localhost:3000/api/genomics/runs/$RUN_ID/ingest"
+BASE="http://localhost:3001/api/genomics/runs/$RUN_ID/ingest"
 AUTH="-H 'Authorization: Bearer $HERMES_API_TOKEN' -H 'Content-Type: application/json'"
 
 for SAMPLE in SIP0001 SIP0002; do
@@ -426,6 +463,7 @@ curl -sf -X POST $BASE $AUTH -d '{"event":"run_complete"}'
 ```
 
 **Check generated script for correctness before running:**
+
 ```bash
 bash -n /path/to/log_dir/script.sh   # syntax check without executing
 ```
