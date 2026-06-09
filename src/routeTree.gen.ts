@@ -174,8 +174,11 @@ import { Route as ApiHermesworldReservationsConfirmRouteImport } from './routes/
 import { Route as ApiGenomicsRunsRunIdRouteImport } from './routes/api/genomics/runs.$runId'
 import { Route as ApiGenomicsProtocolsProtocolIdRouteImport } from './routes/api/genomics/protocols.$protocolId'
 import { Route as ApiGenomicsCasesCaseIdRouteImport } from './routes/api/genomics/cases.$caseId'
+import { Route as ApiGenomicsRunsRunIdStartRouteImport } from './routes/api/genomics/runs.$runId.start'
 import { Route as ApiGenomicsRunsRunIdLogRouteImport } from './routes/api/genomics/runs.$runId.log'
+import { Route as ApiGenomicsRunsRunIdIngestRouteImport } from './routes/api/genomics/runs.$runId.ingest'
 import { Route as ApiGenomicsProtocolsProtocolIdPreviewRouteImport } from './routes/api/genomics/protocols.$protocolId.preview'
+import { Route as ApiGenomicsCasesCaseIdRunsRouteImport } from './routes/api/genomics/cases.$caseId.runs'
 import { Route as ApiGenomicsCasesCaseIdReportRouteImport } from './routes/api/genomics/cases.$caseId.report'
 import { Route as ApiGenomicsRunsRunIdLinkCaseIdRouteImport } from './routes/api/genomics/runs.$runId.link.$caseId'
 import { Route as ApiGenomicsCasesCaseIdReportGenerateRouteImport } from './routes/api/genomics/cases.$caseId.report.generate'
@@ -1013,16 +1016,34 @@ const ApiGenomicsCasesCaseIdRoute = ApiGenomicsCasesCaseIdRouteImport.update({
   path: '/$caseId',
   getParentRoute: () => ApiGenomicsCasesRoute,
 } as any)
+const ApiGenomicsRunsRunIdStartRoute =
+  ApiGenomicsRunsRunIdStartRouteImport.update({
+    id: '/start',
+    path: '/start',
+    getParentRoute: () => ApiGenomicsRunsRunIdRoute,
+  } as any)
 const ApiGenomicsRunsRunIdLogRoute = ApiGenomicsRunsRunIdLogRouteImport.update({
   id: '/log',
   path: '/log',
   getParentRoute: () => ApiGenomicsRunsRunIdRoute,
 } as any)
+const ApiGenomicsRunsRunIdIngestRoute =
+  ApiGenomicsRunsRunIdIngestRouteImport.update({
+    id: '/ingest',
+    path: '/ingest',
+    getParentRoute: () => ApiGenomicsRunsRunIdRoute,
+  } as any)
 const ApiGenomicsProtocolsProtocolIdPreviewRoute =
   ApiGenomicsProtocolsProtocolIdPreviewRouteImport.update({
     id: '/preview',
     path: '/preview',
     getParentRoute: () => ApiGenomicsProtocolsProtocolIdRoute,
+  } as any)
+const ApiGenomicsCasesCaseIdRunsRoute =
+  ApiGenomicsCasesCaseIdRunsRouteImport.update({
+    id: '/runs',
+    path: '/runs',
+    getParentRoute: () => ApiGenomicsCasesCaseIdRoute,
   } as any)
 const ApiGenomicsCasesCaseIdReportRoute =
   ApiGenomicsCasesCaseIdReportRouteImport.update({
@@ -1216,8 +1237,11 @@ export interface FileRoutesByFullPath {
   '/api/sessions/$sessionKey/active-run': typeof ApiSessionsSessionKeyActiveRunRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
   '/api/genomics/cases/$caseId/report': typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+  '/api/genomics/cases/$caseId/runs': typeof ApiGenomicsCasesCaseIdRunsRoute
   '/api/genomics/protocols/$protocolId/preview': typeof ApiGenomicsProtocolsProtocolIdPreviewRoute
+  '/api/genomics/runs/$runId/ingest': typeof ApiGenomicsRunsRunIdIngestRoute
   '/api/genomics/runs/$runId/log': typeof ApiGenomicsRunsRunIdLogRoute
+  '/api/genomics/runs/$runId/start': typeof ApiGenomicsRunsRunIdStartRoute
   '/api/genomics/cases/$caseId/report/export-pdf': typeof ApiGenomicsCasesCaseIdReportExportPdfRoute
   '/api/genomics/cases/$caseId/report/generate': typeof ApiGenomicsCasesCaseIdReportGenerateRoute
   '/api/genomics/runs/$runId/link/$caseId': typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
@@ -1387,8 +1411,11 @@ export interface FileRoutesByTo {
   '/api/sessions/$sessionKey/active-run': typeof ApiSessionsSessionKeyActiveRunRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
   '/api/genomics/cases/$caseId/report': typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+  '/api/genomics/cases/$caseId/runs': typeof ApiGenomicsCasesCaseIdRunsRoute
   '/api/genomics/protocols/$protocolId/preview': typeof ApiGenomicsProtocolsProtocolIdPreviewRoute
+  '/api/genomics/runs/$runId/ingest': typeof ApiGenomicsRunsRunIdIngestRoute
   '/api/genomics/runs/$runId/log': typeof ApiGenomicsRunsRunIdLogRoute
+  '/api/genomics/runs/$runId/start': typeof ApiGenomicsRunsRunIdStartRoute
   '/api/genomics/cases/$caseId/report/export-pdf': typeof ApiGenomicsCasesCaseIdReportExportPdfRoute
   '/api/genomics/cases/$caseId/report/generate': typeof ApiGenomicsCasesCaseIdReportGenerateRoute
   '/api/genomics/runs/$runId/link/$caseId': typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
@@ -1561,8 +1588,11 @@ export interface FileRoutesById {
   '/api/sessions/$sessionKey/active-run': typeof ApiSessionsSessionKeyActiveRunRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
   '/api/genomics/cases/$caseId/report': typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+  '/api/genomics/cases/$caseId/runs': typeof ApiGenomicsCasesCaseIdRunsRoute
   '/api/genomics/protocols/$protocolId/preview': typeof ApiGenomicsProtocolsProtocolIdPreviewRoute
+  '/api/genomics/runs/$runId/ingest': typeof ApiGenomicsRunsRunIdIngestRoute
   '/api/genomics/runs/$runId/log': typeof ApiGenomicsRunsRunIdLogRoute
+  '/api/genomics/runs/$runId/start': typeof ApiGenomicsRunsRunIdStartRoute
   '/api/genomics/cases/$caseId/report/export-pdf': typeof ApiGenomicsCasesCaseIdReportExportPdfRoute
   '/api/genomics/cases/$caseId/report/generate': typeof ApiGenomicsCasesCaseIdReportGenerateRoute
   '/api/genomics/runs/$runId/link/$caseId': typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
@@ -1736,8 +1766,11 @@ export interface FileRouteTypes {
     | '/api/sessions/$sessionKey/active-run'
     | '/api/sessions/$sessionKey/status'
     | '/api/genomics/cases/$caseId/report'
+    | '/api/genomics/cases/$caseId/runs'
     | '/api/genomics/protocols/$protocolId/preview'
+    | '/api/genomics/runs/$runId/ingest'
     | '/api/genomics/runs/$runId/log'
+    | '/api/genomics/runs/$runId/start'
     | '/api/genomics/cases/$caseId/report/export-pdf'
     | '/api/genomics/cases/$caseId/report/generate'
     | '/api/genomics/runs/$runId/link/$caseId'
@@ -1907,8 +1940,11 @@ export interface FileRouteTypes {
     | '/api/sessions/$sessionKey/active-run'
     | '/api/sessions/$sessionKey/status'
     | '/api/genomics/cases/$caseId/report'
+    | '/api/genomics/cases/$caseId/runs'
     | '/api/genomics/protocols/$protocolId/preview'
+    | '/api/genomics/runs/$runId/ingest'
     | '/api/genomics/runs/$runId/log'
+    | '/api/genomics/runs/$runId/start'
     | '/api/genomics/cases/$caseId/report/export-pdf'
     | '/api/genomics/cases/$caseId/report/generate'
     | '/api/genomics/runs/$runId/link/$caseId'
@@ -2080,8 +2116,11 @@ export interface FileRouteTypes {
     | '/api/sessions/$sessionKey/active-run'
     | '/api/sessions/$sessionKey/status'
     | '/api/genomics/cases/$caseId/report'
+    | '/api/genomics/cases/$caseId/runs'
     | '/api/genomics/protocols/$protocolId/preview'
+    | '/api/genomics/runs/$runId/ingest'
     | '/api/genomics/runs/$runId/log'
+    | '/api/genomics/runs/$runId/start'
     | '/api/genomics/cases/$caseId/report/export-pdf'
     | '/api/genomics/cases/$caseId/report/generate'
     | '/api/genomics/runs/$runId/link/$caseId'
@@ -3372,11 +3411,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGenomicsCasesCaseIdRouteImport
       parentRoute: typeof ApiGenomicsCasesRoute
     }
+    '/api/genomics/runs/$runId/start': {
+      id: '/api/genomics/runs/$runId/start'
+      path: '/start'
+      fullPath: '/api/genomics/runs/$runId/start'
+      preLoaderRoute: typeof ApiGenomicsRunsRunIdStartRouteImport
+      parentRoute: typeof ApiGenomicsRunsRunIdRoute
+    }
     '/api/genomics/runs/$runId/log': {
       id: '/api/genomics/runs/$runId/log'
       path: '/log'
       fullPath: '/api/genomics/runs/$runId/log'
       preLoaderRoute: typeof ApiGenomicsRunsRunIdLogRouteImport
+      parentRoute: typeof ApiGenomicsRunsRunIdRoute
+    }
+    '/api/genomics/runs/$runId/ingest': {
+      id: '/api/genomics/runs/$runId/ingest'
+      path: '/ingest'
+      fullPath: '/api/genomics/runs/$runId/ingest'
+      preLoaderRoute: typeof ApiGenomicsRunsRunIdIngestRouteImport
       parentRoute: typeof ApiGenomicsRunsRunIdRoute
     }
     '/api/genomics/protocols/$protocolId/preview': {
@@ -3385,6 +3438,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/genomics/protocols/$protocolId/preview'
       preLoaderRoute: typeof ApiGenomicsProtocolsProtocolIdPreviewRouteImport
       parentRoute: typeof ApiGenomicsProtocolsProtocolIdRoute
+    }
+    '/api/genomics/cases/$caseId/runs': {
+      id: '/api/genomics/cases/$caseId/runs'
+      path: '/runs'
+      fullPath: '/api/genomics/cases/$caseId/runs'
+      preLoaderRoute: typeof ApiGenomicsCasesCaseIdRunsRouteImport
+      parentRoute: typeof ApiGenomicsCasesCaseIdRoute
     }
     '/api/genomics/cases/$caseId/report': {
       id: '/api/genomics/cases/$caseId/report'
@@ -3656,12 +3716,14 @@ const ApiGenomicsCasesCaseIdReportRouteWithChildren =
 
 interface ApiGenomicsCasesCaseIdRouteChildren {
   ApiGenomicsCasesCaseIdReportRoute: typeof ApiGenomicsCasesCaseIdReportRouteWithChildren
+  ApiGenomicsCasesCaseIdRunsRoute: typeof ApiGenomicsCasesCaseIdRunsRoute
 }
 
 const ApiGenomicsCasesCaseIdRouteChildren: ApiGenomicsCasesCaseIdRouteChildren =
   {
     ApiGenomicsCasesCaseIdReportRoute:
       ApiGenomicsCasesCaseIdReportRouteWithChildren,
+    ApiGenomicsCasesCaseIdRunsRoute: ApiGenomicsCasesCaseIdRunsRoute,
   }
 
 const ApiGenomicsCasesCaseIdRouteWithChildren =
@@ -3708,12 +3770,16 @@ const ApiGenomicsProtocolsRouteWithChildren =
   ApiGenomicsProtocolsRoute._addFileChildren(ApiGenomicsProtocolsRouteChildren)
 
 interface ApiGenomicsRunsRunIdRouteChildren {
+  ApiGenomicsRunsRunIdIngestRoute: typeof ApiGenomicsRunsRunIdIngestRoute
   ApiGenomicsRunsRunIdLogRoute: typeof ApiGenomicsRunsRunIdLogRoute
+  ApiGenomicsRunsRunIdStartRoute: typeof ApiGenomicsRunsRunIdStartRoute
   ApiGenomicsRunsRunIdLinkCaseIdRoute: typeof ApiGenomicsRunsRunIdLinkCaseIdRoute
 }
 
 const ApiGenomicsRunsRunIdRouteChildren: ApiGenomicsRunsRunIdRouteChildren = {
+  ApiGenomicsRunsRunIdIngestRoute: ApiGenomicsRunsRunIdIngestRoute,
   ApiGenomicsRunsRunIdLogRoute: ApiGenomicsRunsRunIdLogRoute,
+  ApiGenomicsRunsRunIdStartRoute: ApiGenomicsRunsRunIdStartRoute,
   ApiGenomicsRunsRunIdLinkCaseIdRoute: ApiGenomicsRunsRunIdLinkCaseIdRoute,
 }
 

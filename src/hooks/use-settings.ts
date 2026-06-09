@@ -103,11 +103,11 @@ export function resolveTheme(theme: SettingsThemeMode): 'light' | 'dark' {
 }
 
 export function applyTheme(_theme?: SettingsThemeMode) {
-  setTheme(getTheme())
+  setTheme('claude-nous-light')
   document.documentElement.setAttribute('data-accent', 'orange')
 }
 
 export function initializeSettingsAppearance() {
-  setTheme(getTheme())
+  setTheme('claude-nous-light')
   document.documentElement.setAttribute('data-accent', 'orange')
 }

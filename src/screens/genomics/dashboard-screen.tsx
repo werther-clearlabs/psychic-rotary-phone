@@ -114,10 +114,7 @@ function GpuCard({
 }) {
   const memPct = (gpu.memory_used_mib / gpu.memory_total_mib) * 100
   return (
-    <div
-      className="cl-card"
-      style={{ padding: 12, display: 'grid', gap: 6 }}
-    >
+    <div className="cl-card" style={{ padding: 12, display: 'grid', gap: 6 }}>
       <div
         style={{
           display: 'flex',
@@ -268,7 +265,7 @@ export function GenomicsDashboard() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: '3fr 2fr',
             gap: 'var(--cl-space-4)',
             alignItems: 'start',
           }}
@@ -298,7 +295,7 @@ export function GenomicsDashboard() {
                 <tr>
                   <th>Patient</th>
                   <th>Diagnosis</th>
-                  <th>Status</th>
+                  <th>Report Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -324,7 +321,7 @@ export function GenomicsDashboard() {
                       {c.diagnosis ?? '—'}
                     </td>
                     <td>
-                      <StatusBadge status={c.status} />
+                      {c.report_status ? <StatusBadge status={c.report_status} /> : '—'}
                     </td>
                   </tr>
                 ))}
@@ -350,7 +347,9 @@ export function GenomicsDashboard() {
                   justifyContent: 'space-between',
                 }}
               >
-                <span style={{ fontWeight: 700, fontSize: 14 }}>Active Runs</span>
+                <span style={{ fontWeight: 700, fontSize: 14 }}>
+                  Active Runs
+                </span>
                 <Link
                   to="/genomics/runs"
                   style={{ fontSize: 12, color: 'var(--brand-600)' }}
@@ -371,7 +370,10 @@ export function GenomicsDashboard() {
                     <tr>
                       <td
                         colSpan={3}
-                        style={{ color: 'var(--gray-500)', textAlign: 'center' }}
+                        style={{
+                          color: 'var(--gray-500)',
+                          textAlign: 'center',
+                        }}
                       >
                         No active runs
                       </td>

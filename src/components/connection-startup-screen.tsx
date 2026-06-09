@@ -220,7 +220,7 @@ export function ConnectionStartupScreen({ onConnected }: Props) {
     >
       <div className="flex w-full max-w-lg flex-col items-center text-center">
         <img
-          src="/claude-avatar.webp"
+          src="/clearlabs-logo.svg"
           alt="Hermes Agent"
           className="mb-5 h-20 w-20 rounded-2xl object-cover shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
         />
@@ -255,9 +255,9 @@ export function ConnectionStartupScreen({ onConnected }: Props) {
               Welcome! Let&apos;s connect your backend
             </p>
             <p className="mt-2 text-sm leading-6 text-white/60">
-              Hermes Workspace works with any OpenAI-compatible backend. Hermes Agent
-              gateway APIs unlock enhanced features automatically when they are
-              available.
+              Hermes Workspace works with any OpenAI-compatible backend. Hermes
+              Agent gateway APIs unlock enhanced features automatically when
+              they are available.
             </p>
 
             {/* Auto-start section */}

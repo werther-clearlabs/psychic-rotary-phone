@@ -295,7 +295,9 @@ export function ProfilesScreen() {
       toast(`Saved description for ${detailsName}`, { type: 'success' })
       await Promise.all([
         refreshProfiles(),
-        queryClient.invalidateQueries({ queryKey: ['profiles', 'read', detailsName] }),
+        queryClient.invalidateQueries({
+          queryKey: ['profiles', 'read', detailsName],
+        }),
       ])
       await detailQuery.refetch()
     } catch (error) {
@@ -352,7 +354,7 @@ export function ProfilesScreen() {
                     )}
                   >
                     <img
-                      src="/claude-avatar.webp"
+                      src="/clearlabs-logo.svg"
                       alt={profile.name}
                       className={cn(
                         'size-20 rounded-full border-2 object-cover',
@@ -643,8 +645,8 @@ export function ProfilesScreen() {
                     </div>
                   ) : allModels.length === 0 ? (
                     <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 text-xs text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
-                      No models found. Make sure Hermes Agent is running and
-                      has models configured.
+                      No models found. Make sure Hermes Agent is running and has
+                      models configured.
                     </div>
                   ) : (
                     <select
@@ -866,7 +868,7 @@ export function ProfilesScreen() {
             <div className="flex items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
                 <img
-                  src="/claude-avatar.webp"
+                  src="/clearlabs-logo.svg"
                   alt={detailsName || ''}
                   className="size-12 rounded-full border-2 border-primary-200 object-cover dark:border-neutral-700"
                 />
@@ -945,12 +947,15 @@ export function ProfilesScreen() {
                   </div>
                   <textarea
                     value={descriptionDraft}
-                    onChange={(event) => setDescriptionDraft(event.target.value)}
+                    onChange={(event) =>
+                      setDescriptionDraft(event.target.value)
+                    }
                     placeholder="What this profile is for, how it should behave, or what makes it different"
                     className="min-h-[96px] w-full rounded-lg border border-primary-200 bg-primary-100/70 p-3 text-sm text-primary-900 outline-none transition-colors focus:border-accent-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                   />
                   <p className="mt-2 text-xs text-primary-400 dark:text-neutral-500">
-                    Saved into the profile config, so manual file edits show up here after refresh.
+                    Saved into the profile config, so manual file edits show up
+                    here after refresh.
                   </p>
                 </div>
                 <div className="rounded-xl border border-primary-200 bg-primary-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/60">

@@ -16,7 +16,18 @@ function deserialize(row: Record<string, unknown>): Case {
 
 export function listCases(db: Database.Database = defaultDb): Case[] {
   return db
-    .prepare('SELECT * FROM cases ORDER BY created_at DESC')
+    .prepare(`
+      SELECT c.*, r.status AS report_status
+      FROM cases c
+      LEFT JOIN (
+        SELECT case_id, status
+        FROM reports
+        WHERE (case_id, version) IN (
+          SELECT case_id, MAX(version) FROM reports GROUP BY case_id
+        )
+      ) r ON r.case_id = c.id
+      ORDER BY c.created_at DESC
+    `)
     .all() as Case[]
 }
 

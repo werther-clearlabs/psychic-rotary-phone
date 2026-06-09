@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=EB+Garamond:opsz,wght@8..120,400..800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
+@import './styles/genomics/tokens.css';
 
 /* Tailwind v4 — enable dark: variant on .dark class (set by __root.tsx) */
 @variant dark (&:where(.dark, .dark *));
@@ -1531,3 +1532,53 @@ code {
    Tailwind oklch values and .system dark mode overrides.
    ═══════════════════════════════════════════════════════════════════ */
 @import './scifi-theme.css';
+
+/* ════════════════════════════════════════════════════════════════════
+   Genomics theme — maps Clear Labs design tokens onto the workspace
+   theme variable layer. Always applied via claude-nous-light.
+   ═══════════════════════════════════════════════════════════════════ */
+[data-theme='claude-nous-light'] {
+  --theme-bg: var(--gray-100);
+  --theme-sidebar: var(--gray-50);
+  --theme-panel: var(--gray-50);
+  --theme-card: var(--white);
+  --theme-card2: var(--gray-100);
+  --theme-border: var(--gray-200);
+  --theme-border-subtle: var(--gray-100);
+  --theme-text: var(--gray-900);
+  --theme-muted: var(--gray-600);
+  --theme-shadow-1: var(--cl-shadow-1);
+  --theme-shadow-2: var(--cl-shadow-1);
+  --theme-shadow-3: 0 18px 54px rgba(0, 0, 0, 0.12);
+  --theme-glass: rgba(255, 255, 255, 0.92);
+  --theme-focus: var(--brand-500);
+  --theme-accent: var(--brand-500);
+  --theme-accent-secondary: var(--brand-400);
+  --theme-accent-subtle: var(--brand-50);
+  --theme-accent-border: var(--brand-200);
+  --theme-active: var(--brand-600);
+  --theme-link: var(--brand-600);
+  --theme-success: var(--color-green-500);
+  --theme-warning: var(--color-yellow-500);
+  --theme-danger: var(--color-red-500);
+  --theme-stripe: color-mix(in oklch, var(--gray-200) 50%, transparent);
+  --theme-header-bg: var(--white);
+  --theme-header-border: var(--gray-200);
+  --chat-user-bg: var(--brand-50);
+  --chat-user-border: var(--brand-200);
+  --chat-user-foreground: var(--gray-900);
+  --chat-assistant-bg: var(--white);
+  --chat-assistant-border: var(--gray-200);
+  --chat-assistant-foreground: var(--gray-900);
+  --composer-bg: var(--white);
+  --composer-border: var(--gray-200);
+  --composer-placeholder: var(--gray-500);
+  --tool-card-bg: var(--gray-50);
+  --tool-card-border: var(--gray-200);
+  --tool-card-title: var(--gray-900);
+  --tool-card-muted: var(--gray-700);
+  --code-bg: var(--gray-100);
+  --code-border: var(--gray-200);
+  --code-foreground: var(--gray-900);
+  --theme-input: var(--white);
+}

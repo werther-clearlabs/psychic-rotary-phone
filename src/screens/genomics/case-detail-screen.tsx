@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams, Link } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import type { Case, CaseSample, Report } from '../../server/genomics/types'
 import { useGenomicsStore } from '../../stores/genomics-store'
 import { GenerateReportModal } from './components/generate-report-modal'
 import { ReportCanvas } from './components/report-canvas'
 import { ReportChatPanel } from './components/report-chat-panel'
+import type { Case, CaseSample, Report, Run } from '../../server/genomics/types'
+import { toast } from '@/components/ui/toast'
 
 async function fetchCase(
   id: string,
@@ -43,10 +44,18 @@ export function CaseDetailScreen() {
     queryKey: ['genomics', 'case', caseId],
     queryFn: () => fetchCase(caseId),
   })
+  const { reportGeneratingCases, clearReportGenerating } = useGenomicsStore()
+  const isGenerating = !!reportGeneratingCases[caseId]
+
   const { data: report } = useQuery({
     queryKey: ['genomics', 'case', caseId, 'report'],
     queryFn: () => fetchReport(caseId),
+    refetchInterval: isGenerating ? 8000 : false,
   })
+
+  useEffect(() => {
+    if (report && isGenerating) clearReportGenerating(caseId)
+  }, [report, isGenerating, caseId, clearReportGenerating])
 
   if (isLoading)
     return (
@@ -107,7 +116,7 @@ export function CaseDetailScreen() {
           <OverviewTab c={c} samples={samples} report={report} />
         )}
         {activeTab === 'Report & Review' && (
-          <ReportAndReviewTab c={c} caseId={caseId} report={report ?? null} />
+          <ReportAndReviewTab c={c} caseId={caseId} report={report ?? null} isGenerating={isGenerating} />
         )}
         {activeTab === 'Files' && <FilesTab samples={samples} />}
         {activeTab === 'Runs' && <RunsTab caseId={caseId} />}
@@ -361,15 +370,11 @@ function FilesTab({ samples }: { samples: CaseSample[] }) {
 }
 
 function RunsTab({ caseId }: { caseId: string }) {
-  const { data: allRuns = [] } = useQuery({
-    queryKey: ['genomics', 'runs'],
+  const { data: runs = [] } = useQuery({
+    queryKey: ['genomics', 'case', caseId, 'runs'],
     queryFn: async () => {
-      const res = await fetch('/api/genomics/runs')
-      return (
-        (await res.json()) as {
-          runs: import('../../server/genomics/types').Run[]
-        }
-      ).runs
+      const res = await fetch(`/api/genomics/cases/${caseId}/runs`)
+      return ((await res.json()) as { runs: Array<Run> }).runs
     },
   })
   return (
@@ -384,29 +389,24 @@ function RunsTab({ caseId }: { caseId: string }) {
           </tr>
         </thead>
         <tbody>
-          {allRuns.length === 0 && (
+          {runs.length === 0 && (
             <tr>
-              <td
-                colSpan={4}
-                style={{
-                  color: 'var(--gray-500)',
-                  textAlign: 'center',
-                  padding: 24,
-                }}
-              >
-                No linked runs
+              <td colSpan={4} style={{ color: 'var(--gray-500)', textAlign: 'center', padding: 24 }}>
+                No runs linked to this case
               </td>
             </tr>
           )}
-          {allRuns.map((r) => (
+          {runs.map((r) => (
             <tr key={r.id}>
-              <td style={{ fontWeight: 700 }}>{r.name}</td>
+              <td style={{ fontWeight: 700 }}>
+                <Link to="/genomics/runs/$runId" params={{ runId: r.id }} style={{ color: 'var(--brand-600)' }}>
+                  {r.name}
+                </Link>
+              </td>
               <td>{r.pipeline}</td>
               <td style={{ color: 'var(--gray-700)' }}>{r.reference ?? '—'}</td>
               <td>
-                <span className={`cl-badge cl-badge-${r.status}`}>
-                  {r.status}
-                </span>
+                <span className={`cl-badge cl-badge-${r.status}`}>{r.status}</span>
               </td>
             </tr>
           ))}
@@ -451,8 +451,8 @@ function HistoryTab({ report }: { report: Report | null }) {
   )
 }
 
-function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; report: Report | null }) {
-  const { generateModalOpen, openGenerateModal, closeGenerateModal } = useGenomicsStore()
+function ReportAndReviewTab({ c, caseId, report, isGenerating }: { c: Case; caseId: string; report: Report | null; isGenerating: boolean }) {
+  const { generateModalOpen, openGenerateModal, closeGenerateModal, markReportGenerating } = useGenomicsStore()
 
   useEffect(() => {
     return () => closeGenerateModal()
@@ -462,19 +462,36 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
   if (!report) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: 'var(--gray-600)' }}>
-        <div style={{ fontSize: 48, marginBottom: 16, color: 'var(--gray-300)' }}>⬡</div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 8 }}>
-          No report generated yet
-        </h3>
-        <p style={{ fontSize: 13, color: 'var(--gray-600)', marginBottom: 24, maxWidth: 380, margin: '0 auto 24px' }}>
-          Select a Protocol to dispatch the AI agent. The report will appear here once the agent finishes.
-        </p>
-        <button
-          onClick={() => openGenerateModal()}
-          style={{ padding: '8px 24px', borderRadius: 3, fontSize: 13, fontWeight: 700, background: 'var(--brand-500)', color: '#fff', border: 'none', cursor: 'pointer' }}
-        >
-          Generate Report
-        </button>
+        {isGenerating ? (
+          <>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>⏳</div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 8 }}>
+              Report generation in progress
+            </h3>
+            <p style={{ fontSize: 13, color: 'var(--gray-600)', maxWidth: 380, margin: '0 auto 8px' }}>
+              The AI agent is analyzing the case and writing the report. This typically takes a few minutes.
+            </p>
+            <p style={{ fontSize: 12, color: 'var(--gray-400)', maxWidth: 380, margin: '0 auto' }}>
+              This page will update automatically when the report is ready.
+            </p>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 48, marginBottom: 16, color: 'var(--gray-300)' }}>⬡</div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--gray-800)', marginBottom: 8 }}>
+              No report generated yet
+            </h3>
+            <p style={{ fontSize: 13, color: 'var(--gray-600)', marginBottom: 24, maxWidth: 380, margin: '0 auto 24px' }}>
+              Select a Protocol to dispatch the AI agent. The report will appear here once the agent finishes.
+            </p>
+            <button
+              onClick={() => openGenerateModal()}
+              style={{ padding: '8px 24px', borderRadius: 3, fontSize: 13, fontWeight: 700, background: 'var(--brand-500)', color: '#fff', border: 'none', cursor: 'pointer' }}
+            >
+              Generate Report
+            </button>
+          </>
+        )}
         {generateModalOpen && (
           <GenerateReportModal
             caseId={caseId}
@@ -482,7 +499,8 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
             onClose={closeGenerateModal}
             onDispatched={() => {
               closeGenerateModal()
-              // Poll for report availability after dispatch
+              markReportGenerating(caseId)
+              toast('Report generation dispatched — the report will appear once the agent finishes.', { type: 'success' })
               setTimeout(() => {
                 void qc.invalidateQueries({ queryKey: ['genomics', 'case', caseId, 'report'] })
               }, 3000)
@@ -526,6 +544,7 @@ function ReportAndReviewTab({ c, caseId, report }: { c: Case; caseId: string; re
           onClose={closeGenerateModal}
           onDispatched={() => {
             closeGenerateModal()
+            toast('Report generation dispatched — the report will appear once the agent finishes.', { type: 'success' })
             void qc.invalidateQueries({ queryKey: ['genomics', 'case', caseId, 'report'] })
           }}
         />

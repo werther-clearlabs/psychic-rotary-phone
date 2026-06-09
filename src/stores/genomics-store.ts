@@ -18,6 +18,9 @@ interface GenomicsState {
   generateProtocolId: string | null
   generateVariableOverrides: Record<string, string>
 
+  // Cases where report generation has been dispatched and is in progress
+  reportGeneratingCases: Record<string, boolean>
+
   // Actions
   setActiveCase: (c: Case | null) => void
   setActiveRun: (r: Run | null) => void
@@ -30,6 +33,8 @@ interface GenomicsState {
   setGenerateProtocolId: (id: string) => void
   setVariableOverride: (name: string, value: string) => void
   resetVariableOverrides: () => void
+  markReportGenerating: (caseId: string) => void
+  clearReportGenerating: (caseId: string) => void
 }
 
 export const useGenomicsStore = create<GenomicsState>()((set) => ({
@@ -41,6 +46,7 @@ export const useGenomicsStore = create<GenomicsState>()((set) => ({
   generateModalOpen: false,
   generateProtocolId: null,
   generateVariableOverrides: {},
+  reportGeneratingCases: {},
 
   setActiveCase: (c) => set({ activeCase: c }),
   setActiveRun: (r) => set({ activeRun: r }),
@@ -73,4 +79,12 @@ export const useGenomicsStore = create<GenomicsState>()((set) => ({
       },
     })),
   resetVariableOverrides: () => set({ generateVariableOverrides: {} }),
+  markReportGenerating: (caseId) =>
+    set((s) => ({ reportGeneratingCases: { ...s.reportGeneratingCases, [caseId]: true } })),
+  clearReportGenerating: (caseId) =>
+    set((s) => {
+      const next = { ...s.reportGeneratingCases }
+      delete next[caseId]
+      return { reportGeneratingCases: next }
+    }),
 }))

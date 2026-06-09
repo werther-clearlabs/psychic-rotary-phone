@@ -77,7 +77,6 @@ export function GenerateReportModal({ caseId, assayType, onClose, onDispatched }
       generateReport(caseId, generateProtocolId!, generateVariableOverrides),
     onSuccess: () => {
       onDispatched()
-      onClose()
     },
   })
 

@@ -17,7 +17,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
@@ -28,17 +27,10 @@ import { ChatSidebar } from '@/screens/chat/components/chat-sidebar'
 import { useChatSessions } from '@/screens/chat/hooks/use-chat-sessions'
 import { useWorkspaceStore } from '@/stores/workspace-store'
 import { SIDEBAR_TOGGLE_EVENT } from '@/hooks/use-global-shortcuts'
-import { useSwipeNavigation } from '@/hooks/use-swipe-navigation'
 import { ChatPanel } from '@/components/chat-panel'
 import { ChatPanelToggle } from '@/components/chat-panel-toggle'
 import { LoginScreen } from '@/components/auth/login-screen'
-import { MobileTabBar } from '@/components/mobile-tab-bar'
-import { MobileHamburgerMenu } from '@/components/mobile-hamburger-menu'
-import { MobilePageHeader } from '@/components/mobile-page-header'
-
-import { MobileTerminalInput } from '@/components/terminal/mobile-terminal-input'
 import { ClaudeReconnectBanner } from '@/components/claude-reconnect-banner'
-import { useMobileKeyboard } from '@/hooks/use-mobile-keyboard'
 import { SystemMetricsFooter } from '@/components/system-metrics-footer'
 import { CommandPalette } from '@/components/command-palette'
 import { useSettings } from '@/hooks/use-settings'
@@ -76,36 +68,7 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
   const chatFocusMode = useWorkspaceStore((s) => s.chatFocusMode)
   const toggleSidebar = useWorkspaceStore((s) => s.toggleSidebar)
   const setSidebarCollapsed = useWorkspaceStore((s) => s.setSidebarCollapsed)
-  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipeNavigation()
-
-  // ChatGPT-style: track visual viewport height for keyboard-aware layout
-  useMobileKeyboard()
-
   const [creatingSession, setCreatingSession] = useState(false)
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return window.matchMedia('(max-width: 767px)').matches
-  })
-
-  // Slide transition direction tracking (mobile only)
-  const [slideClass, setSlideClass] = useState<string>('')
-  const prevTabIndexRef = useRef<number>(-1)
-
-  // Map pathname to tab index (mirrors TABS order in mobile-tab-bar)
-  const getTabIndex = useCallback((path: string): number => {
-    if (path === '/dashboard') return 0
-    if (path.startsWith('/chat') || path === '/new' || path === '/') return 1
-    if (path.startsWith('/files')) return 2
-    if (path.startsWith('/terminal')) return 3
-    if (path.startsWith('/jobs')) return 4
-    if (path === '/swarm' || path.startsWith('/swarm2')) return 5
-    if (path.startsWith('/memory')) return 6
-    if (path.startsWith('/skills')) return 7
-    if (path.startsWith('/mcp')) return 8
-    if (path.startsWith('/profiles')) return 9
-    if (path.startsWith('/settings')) return 10
-    return -1
-  }, [])
 
   const isClient = typeof window !== 'undefined'
   // Both SSR and client start with the same value to avoid hydration mismatch.
@@ -165,24 +128,6 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
     }
   }, [connectionVerified])
 
-  // Derive active session from URL
-  const mobilePageTitle = (() => {
-    if (pathname.startsWith('/terminal')) return 'Terminal'
-    if (pathname.startsWith('/files')) return 'Files'
-    if (pathname.startsWith('/jobs')) return 'Jobs'
-    if (pathname.startsWith('/conductor')) return 'Conductor'
-    if (pathname.startsWith('/operations')) return 'Operations'
-    if (pathname.startsWith('/swarm2') || pathname === '/swarm') return 'Swarm'
-    if (pathname.startsWith('/memory')) return 'Memory'
-    if (pathname.startsWith('/skills')) return 'Skills'
-    if (pathname.startsWith('/mcp')) return 'MCP'
-    if (pathname.startsWith('/profiles')) return 'Profiles'
-    if (pathname.startsWith('/settings')) return 'Settings'
-    if (pathname.startsWith('/debug')) return 'Debug'
-    if (pathname.startsWith('/activity')) return 'Activity'
-    return null
-  })()
-
   const chatMatch = pathname.match(/^\/chat\/(.+)$/)
   const activeFriendlyId = chatMatch ? chatMatch[1] : 'main'
   const isOnChatRoute = Boolean(chatMatch) || pathname === '/new'
@@ -194,7 +139,7 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
   const isChromeFreeSurface = isEmbeddedSurface || isOnHermesWorldLandingRoute
   const hideChatSidebar = isOnChatRoute && chatFocusMode
   const showDesktopSidebarBackdrop =
-    !isChromeFreeSurface && !isMobile && !isOnChatRoute && !sidebarCollapsed
+    !isChromeFreeSurface && !isOnChatRoute && !sidebarCollapsed
 
   const isNewChat = activeFriendlyId === 'new'
 
@@ -219,24 +164,11 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
     )
   }, [navigate])
 
-  const handleSelectSession = useCallback(() => {
-    // On mobile, collapse sidebar after selecting
-    if (window.innerWidth < 768) {
-      setSidebarCollapsed(true)
-    }
-  }, [setSidebarCollapsed])
+  const handleSelectSession = useCallback(() => {}, [])
 
   const handleActiveSessionDelete = useCallback(() => {
     navigate({ to: '/chat/$sessionKey', params: { sessionKey: 'main' } })
   }, [navigate])
-
-  useEffect(() => {
-    const media = window.matchMedia('(max-width: 767px)')
-    const update = () => setIsMobile(media.matches)
-    update()
-    media.addEventListener('change', update)
-    return () => media.removeEventListener('change', update)
-  }, [])
 
   useEffect(() => {
     if (typeof document === 'undefined') return
@@ -247,46 +179,14 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
     }
   }, [isElectron])
 
-  // Keep mobile sidebar state closed after resize and route changes.
-  useEffect(() => {
-    if (!isMobile) return
-    setSidebarCollapsed(true)
-  }, [isMobile, pathname, setSidebarCollapsed])
-
-  // Slide transitions on mobile tab navigation
-  useEffect(() => {
-    if (!isMobile) return
-    const currentIdx = getTabIndex(pathname)
-    const prevIdx = prevTabIndexRef.current
-
-    if (prevIdx !== -1 && currentIdx !== -1 && currentIdx !== prevIdx) {
-      // Navigate right (higher index) = slide left; left = slide right
-      const direction =
-        currentIdx > prevIdx ? 'slide-enter-left' : 'slide-enter-right'
-      setSlideClass(direction)
-      // Remove class after animation completes
-      const timer = setTimeout(() => setSlideClass(''), 250)
-      prevTabIndexRef.current = currentIdx
-      return () => clearTimeout(timer)
-    }
-
-    prevTabIndexRef.current = currentIdx
-    return undefined
-  }, [isMobile, pathname, getTabIndex])
-
-  // Listen for global sidebar toggle shortcut
   useEffect(() => {
     function handleToggleEvent() {
-      if (isMobile) {
-        setSidebarCollapsed(true)
-        return
-      }
       toggleSidebar()
     }
     window.addEventListener(SIDEBAR_TOGGLE_EVENT, handleToggleEvent)
     return () =>
       window.removeEventListener(SIDEBAR_TOGGLE_EVENT, handleToggleEvent)
-  }, [isMobile, setSidebarCollapsed, toggleSidebar])
+  }, [toggleSidebar])
 
   // Public/launch surfaces should behave like normal web pages, not app-shell panes.
   // This keeps /hermes-world and /world scrollable at the document level and avoids
@@ -341,13 +241,11 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
         )}
         <div
           className={cn(
-            'grid h-full grid-cols-1 grid-rows-[minmax(0,1fr)] overflow-hidden',
-            hideChatSidebar || isChromeFreeSurface ? 'md:grid-cols-1' : 'md:grid-cols-[auto_1fr]',
+            'grid h-full grid-rows-[minmax(0,1fr)] overflow-hidden',
+            hideChatSidebar ? 'grid-cols-1' : 'grid-cols-[auto_1fr]',
           )}
         >
-          {/* Activity ticker bar */}
-          {/* Persistent sidebar */}
-          {!isChromeFreeSurface && !isMobile && !hideChatSidebar && (
+          {!hideChatSidebar && (
             <div className="relative z-30">
               <ChatSidebar
                 sessions={sessions}
@@ -366,26 +264,14 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
             </div>
           )}
 
-          {/* Main content area — renders the matched route */}
           <main
-            onTouchStart={isMobile ? onTouchStart : undefined}
-            onTouchMove={isMobile ? onTouchMove : undefined}
-            onTouchEnd={isMobile ? onTouchEnd : undefined}
             className={[
-              'h-full min-h-0 min-w-0 overflow-x-hidden bg-[var(--theme-bg)] relative',
+              'h-full min-h-0 min-w-0 overflow-x-hidden bg-(--theme-bg) relative',
               isOnChatRoute ? 'overflow-hidden' : 'overflow-y-auto',
-              isMobile && !isOnChatRoute
-                ? 'pb-[calc(var(--tabbar-h,80px)+0.5rem)]'
-                : !isMobile &&
-                    !isChromeFreeSurface &&
-                    !isOnChatRoute &&
-                    settings.showSystemMetricsFooter
-                  ? 'pb-7'
-                  : '',
+              !isOnChatRoute && settings.showSystemMetricsFooter ? 'pb-7' : '',
             ].join(' ')}
             data-tour="chat-area"
           >
-            {/* Persistent terminal — stays mounted to preserve session across navigation */}
             <div
               className="flex flex-col"
               style={{
@@ -396,9 +282,6 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
                 zIndex: isOnTerminalRoute ? 1 : -1,
               }}
             >
-              {isMobile && isOnTerminalRoute && (
-                <MobilePageHeader title="Terminal" />
-              )}
               <div className="flex-1 min-h-0 overflow-hidden">
                 <Suspense fallback={null}>
                   <TerminalWorkspace
@@ -407,37 +290,25 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
                   />
                 </Suspense>
               </div>
-              {/* Mobile input bar — only mount on the terminal route.
-                  It uses fixed bottom positioning, so if it stays mounted while
-                  hidden it leaks onto other mobile pages like Operations. */}
-              {isMobile && isOnTerminalRoute && <MobileTerminalInput />}
             </div>
 
             <div
               className={[
                 'page-transition flex flex-col',
                 isChromeFreeSurface ? 'min-h-full' : 'h-full',
-                slideClass,
                 isOnTerminalRoute ? 'hidden' : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
             >
-              {isMobile &&
-                !isChromeFreeSurface &&
-                !isOnChatRoute &&
-                !isOnTerminalRoute &&
-                mobilePageTitle && <MobilePageHeader title={mobilePageTitle} />}
               {children}
             </div>
           </main>
 
-          {/* Chat panel — visible on non-chat routes (but not in HermesWorld, which has its own in-game chat) */}
-          {!isOnChatRoute && !isOnPlaygroundRoute && !isChromeFreeSurface && !isMobile && <ChatPanel />}
+          {!isOnChatRoute && !isOnPlaygroundRoute && !isChromeFreeSurface && <ChatPanel />}
         </div>
 
-        {/* Floating chat toggle — visible on non-chat routes (but not in HermesWorld) */}
-        {!isChromeFreeSurface && !isOnChatRoute && !isOnPlaygroundRoute && !isMobile && <ChatPanelToggle />}
+        {!isChromeFreeSurface && !isOnChatRoute && !isOnPlaygroundRoute && <ChatPanelToggle />}
 
         {showDesktopSidebarBackdrop ? (
           <button
@@ -453,9 +324,7 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
         ) : null}
       </div>
 
-      {!isChromeFreeSurface ? <MobileHamburgerMenu /> : null}
-      {!isChromeFreeSurface ? <MobileTabBar /> : null}
-      {!isChromeFreeSurface && !isMobile && !isOnChatRoute && settings.showSystemMetricsFooter ? (
+      {!isChromeFreeSurface && !isOnChatRoute && settings.showSystemMetricsFooter ? (
         <SystemMetricsFooter leftOffsetPx={sidebarCollapsed ? 48 : 300} />
       ) : null}
       {!isChromeFreeSurface ? <CommandPalette pathname={pathname} sessions={sessions} /> : null}
